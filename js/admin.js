@@ -256,7 +256,7 @@
       '<div class="alerte"></div>' +
       '<form data-form="berger"><input type="hidden" name="id" value="' + esc(c.id) + '">' +
       champSelect('berger_id', 'Berger', candidats, c.berger_id, 'Aucun berger',
-        'La personne choisie devient « berger » et est rattachée à cette cellule.') +
+        'La personne choisie devient « berger » et est rattachée à cette cellule. L\'ancien berger redevient membre s\'il ne dirige plus aucune cellule.') +
       '<div class="duo"><button type="button" class="btn btn-vide" data-conf="0">Annuler</button>' +
       '<button class="btn btn-plein">Enregistrer</button></div></form>');
   };
@@ -265,12 +265,9 @@
     App.occupe(b, true, 'Enregistrement…');
     try {
       var celluleId = form.id.value, bergerId = vide(form.berger_id.value);
+      // La base de données fait le reste : le berger devient « berger », il est rattaché à
+      // cette cellule, et l'ancien berger redevient « membre » s'il ne dirige plus aucune cellule.
       await App.q(sb.from('cellules').update({ berger_id: bergerId }).eq('id', celluleId));
-      if (bergerId) {
-        await App.q(sb.from('membres_cellule').upsert({ user_id: bergerId, cellule_id: celluleId, statut: 'actif' }, { onConflict: 'user_id,cellule_id' }));
-        var u = App.par(D.membres, bergerId);
-        if (u && u.role === 'membre') await App.q(sb.from('users').update({ role: 'berger' }).eq('id', bergerId));
-      }
       App.fermer();
       await rafraichir();
       App.rechargerEcran();
@@ -336,6 +333,7 @@
         '<div class="mb-chiffres">' + (u.telephone ? '📞 ' + esc(App.fmtTel(u.telephone)) : 'Numéro non renseigné') +
         (App.estIdentifiantInterne(u.email) ? '' : ' · ' + esc(u.email)) + '</div>' +
         '<div class="mb-actions"><button class="btn btn-doux btn-s" data-act="form-membre" data-id="' + esc(u.id) + '">Modifier</button>' +
+        (moi || u.statut !== 'actif' ? '' : '<button class="btn btn-vide btn-s" data-act="ecrire-a" data-id="' + esc(u.id) + '">Écrire</button>') +
         (moi ? '' : (u.statut === 'suspendu'
           ? '<button class="btn btn-vert btn-s" data-act="basculer-statut" data-id="' + esc(u.id) + '" data-vers="actif">Réactiver</button>'
           : '<button class="btn btn-rouge btn-s" data-act="basculer-statut" data-id="' + esc(u.id) + '" data-vers="suspendu">Suspendre</button>')) +
@@ -370,7 +368,8 @@
       '<form data-form="membre"><input type="hidden" name="id" value="' + esc(u.id) + '">' +
       (moi
         ? '<div class="mb-note" style="margin:0 0 14px">Vous ne pouvez pas modifier votre propre rôle ni votre propre statut : c\'est une sécurité pour ne pas vous bloquer hors de l\'application.</div>'
-        : champSelect('role', 'Rôle', App.optionsDe(App.ROLES), u.role, null) +
+        : champSelect('role', 'Rôle', App.optionsDe(App.ROLES), u.role, null,
+            'Pour nommer un berger ou un chef, passez plutôt par Cellules ou Départements : le rôle suit automatiquement. Retirer le rôle de berger ou de chef lui retire aussi sa cellule ou son département.') +
           champSelect('statut', 'Statut', App.optionsDe(App.STATUTS), u.statut, null)) +
       champSelect('cellule_id', 'Cellule', D.cellules, u.cellule_id, 'Aucune cellule') +
       champSelect('departement_id', 'Département', D.departements, u.departement_id, 'Aucun département') +
@@ -443,7 +442,7 @@
       champ('nom', 'Nom', d && d.nom, 'text', 'placeholder="Louange" maxlength="80"') +
       champZone('description', 'Description', d && d.description, 'Rôle du département dans l\'église…') +
       champSelect('chef_id', 'Chef de département', candidats, d && d.chef_id, 'Aucun chef',
-        'Le chef voit son département et ses ouvriers.') +
+        'Le chef devient « chef de département », voit son département et ses ouvriers.') +
       '<div class="duo"><button type="button" class="btn btn-vide" data-conf="0">Annuler</button>' +
       '<button class="btn btn-plein">' + (d ? 'Enregistrer' : 'Créer') + '</button></div></form>');
   };
@@ -457,12 +456,8 @@
     try {
       var depId = form.id.value;
       if (depId) await App.q(sb.from('departements').update(donnees).eq('id', depId));
-      else depId = (await App.q(sb.from('departements').insert(donnees).select().single())).id;
-      if (donnees.chef_id) {
-        await App.q(sb.from('ouvriers').upsert({ user_id: donnees.chef_id, departement_id: depId }, { onConflict: 'user_id,departement_id' }));
-        var u = App.par(D.membres, donnees.chef_id);
-        if (u && u.role === 'membre') await App.q(sb.from('users').update({ role: 'chef_departement' }).eq('id', donnees.chef_id));
-      }
+      else await App.q(sb.from('departements').insert(donnees));
+      // La base de données rend le chef « chef de département » et ouvrier de ce département
       App.fermer();
       await rafraichir();
       App.rechargerEcran();

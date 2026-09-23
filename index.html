@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#4A3B85">
 <meta name="application-name" content="MEJ">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -24,11 +24,11 @@
 <body>
 
 <div class="ecran-bienvenue" id="ecran-bienvenue">
-  <img src="img/bienvenue.jpg" alt="">
+  <!-- l'affiche est montrée EN ENTIER (jamais coupée) ; le fond flou la prolonge sur tout l'écran -->
+  <img class="ecran-bienvenue-fond" src="img/bienvenue.jpg" alt="">
   <div class="ecran-bienvenue-voile"></div>
+  <div class="ecran-bienvenue-affiche"><img src="img/bienvenue.jpg" alt="Bienvenue au Ministère d'Évangélisation Jubilé"></div>
   <div class="ecran-bienvenue-corps">
-    <h1>Bienvenue</h1>
-    <p>Ministère d'Évangélisation Jubilé</p>
     <button class="btn btn-plein" onclick="fermerEcranBienvenue()">Entrer →</button>
   </div>
 </div>
@@ -75,7 +75,7 @@
       <button data-cible="messages" onclick="aller('messages')">
         <svg viewBox="0 0 24 24"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7A2.5 2.5 0 0 1 17.5 16H9l-5 4z"/><path d="M8 8.5h8M8 12h5"/></svg>Messages</button>
       <button data-cible="discussions" onclick="aller('discussions')">
-        <svg viewBox="0 0 24 24"><path d="M7.5 17H6a2.5 2.5 0 0 1-2.5-2.5v-7A2.5 2.5 0 0 1 6 5h9a2.5 2.5 0 0 1 2.5 2.5V9"/><path d="M9 11.5A2.5 2.5 0 0 1 11.5 9H18a2.5 2.5 0 0 1 2.5 2.5v6A2.5 2.5 0 0 1 18 20h-2l-4 3v-3h-1a2.5 2.5 0 0 1-2-1"/></svg>Discussions</button>
+        <svg viewBox="0 0 24 24"><path d="M7.5 17H6a2.5 2.5 0 0 1-2.5-2.5v-7A2.5 2.5 0 0 1 6 5h9a2.5 2.5 0 0 1 2.5 2.5V9"/><path d="M9 11.5A2.5 2.5 0 0 1 11.5 9H18a2.5 2.5 0 0 1 2.5 2.5v6A2.5 2.5 0 0 1 18 20h-2l-4 3v-3h-1a2.5 2.5 0 0 1-2-1"/></svg>Discussions<span class="compteur" data-compteur-messages hidden>0</span></button>
 
       <div class="groupe" data-roles="super_admin comptable">Comptes de l'église</div>
       <button data-cible="dimanche" data-roles="super_admin comptable" onclick="aller('dimanche')">
@@ -220,7 +220,7 @@
             <div class="carte-f">
               <span class="ic"><svg viewBox="0 0 24 24"><path d="M7.5 17H6a2.5 2.5 0 0 1-2.5-2.5v-7A2.5 2.5 0 0 1 6 5h9a2.5 2.5 0 0 1 2.5 2.5V9"/><path d="M9 11.5A2.5 2.5 0 0 1 11.5 9H18a2.5 2.5 0 0 1 2.5 2.5v6A2.5 2.5 0 0 1 18 20h-2l-4 3v-3h-1a2.5 2.5 0 0 1-2-1"/></svg></span>
               <h3>Discussions</h3>
-              <p>Un salon pour toute l'assemblée, un par cellule, un par département. Chacun ne voit que les siens.</p>
+              <p>Un salon pour toute l'assemblée, un par cellule, un par département, et des messages privés de membre à membre.</p>
             </div>
           </div>
         </div>
@@ -561,13 +561,33 @@
     <!-- ======================= DISCUSSIONS ======================= -->
     <section class="ecran" id="e-discussions">
       <div class="barre"><span class="marque"><span class="logo-tuile" data-logo></span><span class="nom-eglise" data-nom>Mon Église</span></span></div>
-      <div class="entete"><div><h1>Discussions</h1><p id="di-sous">Partagez avec vos frères et sœurs</p></div></div>
-      <div class="salons" id="salons"></div>
-      <div class="fil" id="fil"><p class="chargement" style="text-align:center">Chargement…</p></div>
-      <div class="ecrire" id="ecrire" hidden>
-        <textarea id="di-texte" rows="1" placeholder="Écrire un message…" maxlength="2000"></textarea>
-        <button id="di-envoyer" aria-label="Envoyer" data-act="envoyer-message">
-          <svg viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-2.6-6.2L4 12z"/></svg></button>
+      <div class="entete entete-compacte"><div><h1>Discussions</h1><p>Groupes de l'église et messages privés</p></div>
+        <button class="btn btn-plein btn-s" data-act="nouveau-message">Nouveau message</button></div>
+      <div class="messagerie" id="messagerie" data-vue="liste">
+        <!-- liste des conversations -->
+        <aside class="conv-panneau">
+          <div class="conv-outils">
+            <div class="recherche"><input id="conv-recherche" type="search" placeholder="Rechercher une conversation…" autocomplete="off"></div>
+            <button class="btn btn-plein btn-s" data-act="nouveau-message" aria-label="Nouveau message">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Nouveau</button>
+          </div>
+          <div class="conv-liste" id="conv-liste"><p class="chargement">Chargement…</p></div>
+        </aside>
+        <!-- conversation ouverte -->
+        <div class="conv-fil">
+          <header class="conv-tete">
+            <button class="conv-retour" data-act="fermer-conversation" aria-label="Retour aux conversations">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+            <span class="avatar" id="conv-avatar"></span>
+            <span class="conv-titres"><b id="conv-nom">—</b><small id="conv-sous"></small></span>
+          </header>
+          <div class="fil" id="fil"></div>
+          <div class="ecrire" id="ecrire">
+            <textarea id="di-texte" rows="1" placeholder="Écrire un message…" maxlength="2000" enterkeyhint="enter"></textarea>
+            <button id="di-envoyer" aria-label="Envoyer" data-act="envoyer-message">
+              <svg viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-2.6-6.2L4 12z"/></svg></button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -735,12 +755,12 @@
       <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12.5" rx="3"/><circle cx="12" cy="12.2" r="2.6"/></svg>Finances</button>
     <button data-cible="dimanche" data-roles="comptable" onclick="aller('dimanche')">
       <svg viewBox="0 0 24 24"><path d="M4 5.5A2 2 0 0 1 6 4h5v16H6a2 2 0 0 1-2-1.5z"/><path d="M20 5.5A2 2 0 0 0 18 4h-5v16h5a2 2 0 0 0 2-1.5z"/></svg>Dimanche</button>
-    <button data-cible="programmes" data-roles="super_admin chef_departement membre" onclick="aller('programmes')">
+    <button data-cible="programmes" data-roles="chef_departement membre" onclick="aller('programmes')">
       <svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="4"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>Programmes</button>
     <button data-cible="messages" data-roles="membre" onclick="aller('messages')">
       <svg viewBox="0 0 24 24"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7A2.5 2.5 0 0 1 17.5 16H9l-5 4z"/></svg>Messages</button>
-    <button data-cible="discussions" data-roles="berger chef_departement comptable membre" onclick="aller('discussions')">
-      <svg viewBox="0 0 24 24"><path d="M7.5 17H6a2.5 2.5 0 0 1-2.5-2.5v-7A2.5 2.5 0 0 1 6 5h9a2.5 2.5 0 0 1 2.5 2.5V9"/><path d="M9 11.5A2.5 2.5 0 0 1 11.5 9H18a2.5 2.5 0 0 1 2.5 2.5v6A2.5 2.5 0 0 1 18 20h-2l-4 3v-3h-1a2.5 2.5 0 0 1-2-1"/></svg>Échanges</button>
+    <button data-cible="discussions" onclick="aller('discussions')">
+      <svg viewBox="0 0 24 24"><path d="M7.5 17H6a2.5 2.5 0 0 1-2.5-2.5v-7A2.5 2.5 0 0 1 6 5h9a2.5 2.5 0 0 1 2.5 2.5V9"/><path d="M9 11.5A2.5 2.5 0 0 1 11.5 9H18a2.5 2.5 0 0 1 2.5 2.5v6A2.5 2.5 0 0 1 18 20h-2l-4 3v-3h-1a2.5 2.5 0 0 1-2-1"/></svg>Échanges<span class="compteur" data-compteur-messages hidden>0</span></button>
     <button data-cible="plus" onclick="aller('plus')">
       <svg viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18.5" cy="12" r="1.6"/></svg>Plus</button>
   </nav>

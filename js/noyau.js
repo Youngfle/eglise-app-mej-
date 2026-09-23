@@ -362,7 +362,7 @@
 
   /* Écrans rangés sous l'onglet « Plus » du téléphone, par rôle */
   var PLUS = {
-    super_admin: ['tableau', 'departements', 'fiches', 'calendrier', 'messages', 'discussions', 'dimanche', 'finances', 'apparence', 'guide', 'mon-profil'],
+    super_admin: ['tableau', 'programmes', 'calendrier', 'messages', 'departements', 'fiches', 'dimanche', 'finances', 'apparence', 'guide', 'mon-profil'],
     berger: ['programmes', 'calendrier', 'messages', 'mes-fiches', 'guide', 'mon-profil'],
     chef_departement: ['calendrier', 'messages', 'guide', 'mon-profil'],
     comptable: ['programmes', 'calendrier', 'messages', 'guide', 'mon-profil'],
@@ -529,6 +529,7 @@
     }
     majEtatEtRole();
     majIdentite();
+    if (App.surveillerMessages) App.surveillerMessages();
     var h2 = hash();
     aller(autorise(h2) ? h2 : App.pageDAccueil(), 'remplacer');
     if (message) App.flash(message);
@@ -656,7 +657,12 @@
       else if (e.target.matches('#e-connexion input')) window.connecter();
     }
   });
-  window.addEventListener('popstate', function () { aller(hash() || App.pageDAccueil(), 'retour'); });
+  window.addEventListener('popstate', function () {
+    var h = hash() || App.pageDAccueil();
+    // même écran (ex. retour d'une conversation vers la liste) : l'écran gère lui-même son état
+    if (h === ecranCourant) return;
+    aller(h, 'retour');
+  });
 
   sb.auth.onAuthStateChange(function (evt) {
     if (evt === 'SIGNED_OUT' && App.etat.session) setTimeout(function () { location.replace(location.pathname); }, 0);

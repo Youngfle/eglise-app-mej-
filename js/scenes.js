@@ -1,10 +1,9 @@
 /* ==========================================================
    SCÈNES — illustrations d'arrière-plan
    ----------------------------------------------------------
-   Dessins originaux en SVG (aucune photo, aucun fichier externe) :
-   ils pèsent quelques kilo-octets, s'affichent instantanément même
-   avec une connexion lente, et prennent automatiquement les couleurs
-   de l'église (variables CSS --v1 / --v2).
+   Vraies photos de l'église (dossier img/) quand elles existent,
+   sinon dessins originaux en SVG qui prennent automatiquement les
+   couleurs de l'église (variables CSS --v1 / --v2).
    Thèmes : prière, adoration, Bible ouverte, croix à l'aube, colombe,
    et l'horizon de la ville au lever du jour.
    ========================================================== */
@@ -185,8 +184,20 @@
   var PHOTOS_ECRAN = {
     discussions: 'img/discussions.jpg'
   };
+  /* Point d'intérêt de chaque photo (les visages) : c'est lui qui reste visible
+     quand la photo est recadrée dans un bandeau large ou étroit.
+     Pour une nouvelle photo, indiquez « horizontal% vertical% » (0% 0% = en haut à gauche). */
+  var CADRAGE = {
+    'img/priere.jpg': '42% 38%',
+    'img/croix.jpg': '50% 35%',
+    'img/adoration.jpg': '50% 18%',
+    'img/bible.jpg': '50% 20%',
+    'img/colombe.jpg': '42% 18%',
+    'img/ville.jpg': '46% 24%',
+    'img/discussions.jpg': '55% 26%'
+  };
   function imageScene(src) {
-    return '<img class="scene" src="' + src + '" alt="" loading="lazy">';
+    return '<img class="scene photo" src="' + src + '" alt="" decoding="async" style="object-position:' + (CADRAGE[src] || '50% 30%') + '">';
   }
 
   /* Renvoie le SVG complet d'une scène, prêt à être inséré */

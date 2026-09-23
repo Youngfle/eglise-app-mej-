@@ -76,7 +76,11 @@
       if (E.role === 'berger' && (E.mesCellules || []).length) {
         var lundi = App.iso(App.lundi(new Date()));
         var fiches = await App.q(sb.from('fiches_cellule').select('id,cellule_id,date_reunion').gte('date_reunion', lundi));
+        var aujourdHui = (new Date().getDay() + 6) % 7;   // 0 = lundi
         var manquantes = E.mesCellules.filter(function (c) {
+          // la réunion de la semaine doit avoir eu lieu avant de réclamer la fiche
+          var jour = App.JOURS.indexOf(c.jour_reunion);
+          if (jour >= 0 && jour > aujourdHui) return false;
           return !fiches.some(function (f) { return f.cellule_id === c.id; });
         });
         if (manquantes.length) {
@@ -204,24 +208,24 @@
       bloc('Les membres', '<p>Toute personne qui s\'inscrit entre <b>directement</b> dans l\'application : elle voit les programmes, les messages et les discussions de l\'église.</p><ol><li>Écran <b>Membres</b> : rattachez chaque personne à sa <b>cellule</b> et à son <b>département</b>.</li><li>Changez son <b>rôle</b> si besoin (berger, chef de département, comptable).</li><li>Un compte gênant peut être <b>suspendu</b> : il perd aussitôt tout accès.</li></ol>') +
       bloc('Cellules et bergers', '<ol><li><b>Cellules → Nouvelle cellule</b> : nom, quartier, jour et heure de réunion.</li><li><b>Nommer un berger</b> : la personne devient berger et ne voit alors que sa cellule.</li><li>Chaque semaine, le berger remplit sa <b>fiche de réunion</b>, que vous retrouvez dans <b>Fiches reçues</b>.</li></ol>') +
       bloc('Programmes et calendrier', '<p><b>Programmes → Nouveau programme</b> : titre, type, thème, dates. Choisissez <b>pour qui</b> : toute l\'église, une cellule ou un département — un programme réservé n\'est visible que par eux.</p><p>Le bouton <b>Séances</b> ajoute les dates successives d\'une activité ; elles apparaissent dans le <b>Calendrier</b> de chacun.</p>') +
-      bloc('Messages et discussions', '<p><b>Messages</b> : publiez un enseignement ou une annonce, avec un lien vidéo ou audio si vous voulez. Vous pouvez programmer la date de publication.</p><p><b>Discussions</b> : un salon pour toute l\'église, un salon par cellule et par département. Vous pouvez supprimer n\'importe quel message.</p>') +
-      bloc('Comptes de l\'église', '<p><b>Cultes du dimanche</b> : présences, nouveaux venus, offrande et dîme de chaque dimanche.</p><p><b>Finances</b> : chaque entrée (dîme, offrande, don) et chaque sortie (loyer, matériel…), avec le solde du mois, de l\'année ou depuis le début. Le comptable a accès à ces deux écrans.</p>') +
+      bloc('Messages et discussions', '<p><b>Messages</b> : publiez un enseignement ou une annonce, avec un lien vidéo ou audio si vous voulez. Vous pouvez programmer la date de publication.</p><p><b>Discussions</b> : un salon pour toute l\'église, un salon par cellule et par département, et des <b>messages privés</b> de personne à personne. Vous pouvez supprimer n\'importe quel message des salons.</p>') +
+      bloc('Comptes de l\'église', '<p><b>Cultes du dimanche</b> : présences, nouveaux venus, offrande et dîme de chaque dimanche. L\'offrande et la dîme passent <b>automatiquement</b> dans les finances.</p><p><b>Finances</b> : chaque entrée (dîme, offrande, don) et chaque sortie (loyer, matériel…), avec le solde du mois, de l\'année ou depuis le début. Le comptable a accès à ces deux écrans.</p>') +
       bloc('Apparence', '<p>Choisissez le <b>nom</b> de l\'église et son <b>logo</b> : le logo devient l\'icône de l\'application sur le téléphone et dans l\'onglet du navigateur, et les couleurs s\'adaptent automatiquement à celles du logo.</p>'),
     berger:
       bloc('Votre cellule', '<p><b>Ma cellule</b> affiche les informations de votre cellule et la liste de ses membres avec leur téléphone. Vous ne voyez que votre cellule : c\'est voulu.</p>') +
       bloc('Remplir la fiche après la réunion', '<ol><li>Onglet <b>Fiche</b>.</li><li>Date, heure de début et de fin.</li><li>Hommes, femmes, enfants : le <b>total se calcule tout seul</b>.</li><li>Nouveaux venus, conversions, familles visitées, témoignages.</li><li>Notez vos difficultés ou suggestions, puis <b>Enregistrer</b>.</li></ol><p>Une seule fiche par réunion : pour corriger, passez par <b>Historique → Modifier</b>.</p>') +
-      bloc('Rester en lien', '<p>Le salon <b>Discussions</b> de votre cellule vous permet d\'écrire à vos membres entre deux réunions. Le salon de l\'église est ouvert à tous.</p>') +
+      bloc('Rester en lien', '<p>Le salon <b>Discussions</b> de votre cellule vous permet d\'écrire à vos membres entre deux réunions. Le bouton <b>Écrire</b> sous chaque membre ouvre une conversation privée avec lui.</p>') +
       bloc('Et si quelqu\'un manque dans ma cellule ?', '<p>Seul l\'administrateur ajoute ou retire des membres. Demandez-lui de placer la personne dans votre cellule depuis son écran <b>Membres</b>.</p>'),
     chef_departement:
       bloc('Votre département', '<p><b>Mon département</b> affiche vos ouvriers et leurs coordonnées. L\'administrateur rattache les membres à votre département.</p>') +
       bloc('Communiquer', '<p>Le salon <b>Discussions</b> de votre département réunit vos ouvriers. Les programmes réservés à votre département apparaissent dans votre calendrier.</p>'),
     comptable:
-      bloc('Cultes du dimanche', '<p>Enregistrez chaque dimanche : présents, absents, nouveaux venus, <b>offrande</b> et <b>dîme</b>. Une seule fiche par dimanche ; pour corriger, ouvrez la fiche et modifiez-la.</p>') +
+      bloc('Cultes du dimanche', '<p>Enregistrez chaque dimanche : présents, absents, nouveaux venus, <b>offrande</b> et <b>dîme</b>. Une seule fiche par dimanche ; pour corriger, ouvrez la fiche et modifiez-la.</p><p>L\'offrande et la dîme sont reportées <b>automatiquement</b> dans les finances : ne les saisissez pas une deuxième fois.</p>') +
       bloc('Finances', '<p>Chaque mouvement est une <b>entrée</b> (dîme, offrande, don…) ou une <b>sortie</b> (loyer, matériel, transport…). Les totaux et le solde se calculent automatiquement pour le mois, l\'année, ou depuis le début.</p><p>Les montants sont en <b>francs CFA</b>.</p>'),
     membre:
       bloc('Votre espace', '<p>L\'<b>Accueil</b> vous donne le verset du jour, les prochains rendez-vous et le dernier message du pasteur.</p>') +
       bloc('Programmes et calendrier', '<p><b>Programmes</b> liste les activités de l\'église ; <b>Calendrier</b> les range date par date. Vous voyez les activités de toute l\'église, celles de votre cellule et celles de votre département.</p>') +
-      bloc('Discussions', '<p>Échangez avec toute l\'assemblée, et avec votre cellule si vous en avez une. Vous pouvez supprimer vos propres messages.</p>') +
+      bloc('Discussions', '<ul><li><b>Toute l\'église</b> : le grand groupe, ouvert à tous.</li><li><b>Ma cellule</b> et <b>mon département</b> : réservés à leurs membres.</li><li><b>Messages privés</b> : touchez <b>Nouveau</b> et choisissez la personne à qui écrire.</li></ul><p>Vous pouvez supprimer vos propres messages.</p>') +
       bloc('Vos informations', '<p><b>Compte → Modifier mes informations</b> : nom, prénom et téléphone. Le rôle, la cellule et le département sont gérés par l\'administration.</p>')
   };
   App.ecrans.guide = function () {

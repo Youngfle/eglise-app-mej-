@@ -14,6 +14,22 @@
   var champ = App.champ, champZone = App.champZone, champSelect = App.champSelect, vide = App.vider;
 
   function estAdmin() { return App.etat.role === 'super_admin'; }
+
+  /* Nom lisible du groupe visé par un programme ou un message */
+  function nomCible(celluleId, departementId) {
+    var D = App.donnees || {};
+    if (celluleId) {
+      var c = App.par(D.cellules, celluleId) || (App.celluleDuProfil && App.celluleDuProfil.id === celluleId ? App.celluleDuProfil : null) ||
+        App.par(App.etat.mesCellules, celluleId);
+      return c ? 'Cellule ' + c.nom : 'Une cellule';
+    }
+    if (departementId) {
+      var d = App.par(D.departements, departementId) || (App.departementDuProfil && App.departementDuProfil.id === departementId ? App.departementDuProfil : null) ||
+        App.par(App.etat.mesDepartements, departementId);
+      return d ? 'Département ' + d.nom : 'Un département';
+    }
+    return "Toute l'église";
+  }
   function estComptable() { return App.etat.role === 'super_admin' || App.etat.role === 'comptable'; }
 
   /* Listes cellules/départements pour les formulaires de l'administrateur */
@@ -61,7 +77,7 @@
       var quand = p.date_debut ? App.fmtDateHeure(p.date_debut) : 'Date à préciser';
       if (p.date_fin && p.date_debut && String(p.date_fin).slice(0, 10) !== String(p.date_debut).slice(0, 10)) quand += ' → ' + App.fmtDateHeure(p.date_fin);
       var nb = seances.filter(function (s) { return s.programme_id === p.id; }).length;
-      var cible = p.cellule_id ? 'Réservé à une cellule' : (p.departement_id ? 'Réservé à un département' : "Toute l'église");
+      var cible = nomCible(p.cellule_id, p.departement_id);
       return '<div class="prog' + (estPasse(p) ? ' passe' : '') + '">' + htmlDatePastille(p.date_debut) +
         '<div class="corps"><b>' + esc(p.titre) + '</b><span class="quand">' + esc(quand) + '</span>' +
         (p.theme ? '<p><b>Thème :</b> ' + esc(p.theme) + '</p>' : '') +
@@ -267,7 +283,7 @@
   };
 
   function htmlMessage(m) {
-    var cible = m.cible === 'tous' ? "Toute l'église" : (m.cible === 'cellule' ? 'Une cellule' : 'Un département');
+    var cible = m.cible === 'tous' ? "Toute l'église" : nomCible(m.cellule_id, m.departement_id);
     var futur = new Date(m.date_publication).getTime() > Date.now();
     return '<div class="msg"><h4>' + esc(m.titre) + '</h4>' +
       '<div class="meta">' + esc(App.fmtDateHeure(m.date_publication)) + ' · ' + esc(cible) + (futur ? ' · publication programmée' : '') + '</div>' +
@@ -403,6 +419,7 @@
       champ('offrande_totale', 'Offrande (F)', f ? f.offrande_totale : 0, 'number', 'min="0" step="1" inputmode="numeric"') +
       champ('dime_totale', 'Dîme (F)', f ? f.dime_totale : 0, 'number', 'min="0" step="1" inputmode="numeric"') + '</div>' +
       champZone('remarques', 'Remarques', f && f.remarques, 'Déroulé, invités, difficultés…') +
+      '<p class="aide" style="margin:-4px 0 14px">L\'offrande et la dîme sont ajoutées automatiquement aux <b>Finances</b> : inutile de les saisir deux fois.</p>' +
       '<div class="duo"><button type="button" class="btn btn-vide" data-conf="0">Annuler</button>' +
       '<button class="btn btn-plein">Enregistrer</button></div></form>');
   };
@@ -428,14 +445,14 @@
       }
       App.fermer();
       App.rechargerEcran();
-      App.flash('Fiche du dimanche enregistrée.');
+      App.flash('Fiche enregistrée. Offrande et dîme reportées dans les finances.');
     } catch (e) {
       App.erreurFeuille(e && e.code === '23505' ? 'Une fiche existe déjà pour ce dimanche : modifiez-la.' : App.msgErreur(e));
     } finally { App.occupe(b, false); }
   };
 
   App.actions['suppr-dimanche'] = async function (d) {
-    var ok = await App.confirmer('Supprimer cette fiche ?', 'Les chiffres de ce dimanche seront perdus.', 'Supprimer', true);
+    var ok = await App.confirmer('Supprimer cette fiche ?', 'Les chiffres de ce dimanche seront perdus, ainsi que son offrande et sa dîme dans les finances.', 'Supprimer', true);
     if (!ok) return;
     try {
       await App.q(sb.from('fiches_dimanche').delete().eq('id', d.id));
@@ -483,7 +500,9 @@
         '<div class="corps"><b>' + esc(f.categorie) + '</b><small>' + esc(App.fmtDate(f.date)) +
         (f.description ? ' · ' + esc(f.description) : '') + '</small></div>' +
         '<span class="montant ' + (e ? 'e' : 's') + '">' + (e ? '+' : '−') + ' ' + App.fmtMontant(f.montant) + '</span>' +
-        '<button class="btn btn-doux btn-s" data-act="form-finance" data-id="' + esc(f.id) + '">✎</button></div>';
+        (f.fiche_dimanche_id
+          ? '<button class="btn btn-vide btn-s" data-act="aller" data-id="dimanche" title="Modifiable depuis la fiche du dimanche">Dim.</button>'
+          : '<button class="btn btn-doux btn-s" data-act="form-finance" data-id="' + esc(f.id) + '" aria-label="Modifier">✎</button>') + '</div>';
     }).join('');
   }
 
@@ -498,6 +517,10 @@
 
   var formulaireFinance = window.formulaireFinance = function (id) {
     var f = id ? App.par(finances, id) : null;
+    if (f && f.fiche_dimanche_id) {
+      App.info('Entrée automatique', "Cette offrande ou cette dîme vient de la fiche du culte du dimanche. Pour la corriger, modifiez la fiche dans « Cultes du dimanche » : les finances suivent automatiquement.");
+      return;
+    }
     var type = f ? f.type : 'entree';
     var cats = App.CATEGORIES_FINANCE[type].map(function (c) { return { v: c, t: c }; });
     App.ouvrir('<h3>' + (f ? 'Modifier le mouvement' : 'Nouveau mouvement') + '</h3>' +

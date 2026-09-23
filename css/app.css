@@ -43,17 +43,21 @@
   --ombre-forte:0 16px 38px rgba(20,26,46,.14);
   --ombre-v:0 10px 26px color-mix(in srgb, var(--v1) 30%, transparent);
 }
-/* ---------- ÉCRAN DE BIENVENUE (premier lancement) ---------- */
-.ecran-bienvenue{position:fixed;inset:0;z-index:999;overflow:hidden;
+/* ---------- ÉCRAN DE BIENVENUE (premier lancement) ----------
+   L'affiche contient du texte : elle est toujours montrée entière (contain),
+   posée sur une version floutée d'elle-même qui remplit l'écran. */
+.ecran-bienvenue{position:fixed;inset:0;z-index:999;overflow:hidden;background:#0A0E1E;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
+  padding:calc(20px + env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom));
   transition:opacity .5s ease,visibility .5s ease}
 .ecran-bienvenue.sorti{opacity:0;visibility:hidden;pointer-events:none}
-.ecran-bienvenue img{width:100%;height:100%;object-fit:cover;object-position:center 25%;display:block}
-.ecran-bienvenue-voile{position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(10,14,30,.55) 0%,rgba(10,14,30,.25) 45%,rgba(10,14,30,.88) 100%)}
-.ecran-bienvenue-corps{position:absolute;left:0;right:0;bottom:0;color:#fff;text-align:center;
-  padding:0 24px calc(48px + env(safe-area-inset-bottom))}
-.ecran-bienvenue-corps h1{font-size:34px;font-weight:800;letter-spacing:-.03em;text-shadow:0 2px 18px rgba(0,0,0,.4)}
-.ecran-bienvenue-corps p{font-size:14.5px;font-weight:600;color:rgba(255,255,255,.86);margin:8px 0 24px}
+.ecran-bienvenue-fond{position:absolute;inset:-40px;width:calc(100% + 80px);height:calc(100% + 80px);
+  object-fit:cover;filter:blur(28px) saturate(1.2);opacity:.75;transform:scale(1.05)}
+.ecran-bienvenue-voile{position:absolute;inset:0;background:rgba(10,14,30,.45)}
+.ecran-bienvenue-affiche{position:relative;z-index:1;width:100%;max-width:1100px;flex:0 1 auto;min-height:0;display:flex;justify-content:center}
+.ecran-bienvenue-affiche img{display:block;max-width:100%;max-height:calc(100dvh - 150px);width:auto;height:auto;
+  object-fit:contain;border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.ecran-bienvenue-corps{position:relative;z-index:1;width:100%;text-align:center}
 .ecran-bienvenue-corps .btn{max-width:280px;margin:0 auto}
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
@@ -460,8 +464,9 @@ img.scene{object-fit:cover;object-position:center 30%}
 .feuille p{color:var(--doux);font-size:14px;margin-bottom:18px}
 .flash{position:fixed;left:50%;transform:translateX(-50%) translateY(-160%);top:calc(14px + env(safe-area-inset-top));
   z-index:70;background:var(--v-encre);color:#fff;padding:13px 20px;border-radius:99px;font-size:13.5px;font-weight:600;
-  box-shadow:0 12px 32px rgba(12,16,32,.4);transition:transform .3s cubic-bezier(.22,.9,.3,1);max-width:92vw;text-align:center}
-.flash.on{transform:translateX(-50%) translateY(0)}
+  box-shadow:0 12px 32px rgba(12,16,32,.4);transition:transform .3s cubic-bezier(.22,.9,.3,1),opacity .3s ease,visibility .3s;max-width:92vw;text-align:center}
+.flash{visibility:hidden;opacity:0}
+.flash.on{transform:translateX(-50%) translateY(0);visibility:visible;opacity:1}
 
 .attente{text-align:center;padding:54px 24px 24px;max-width:460px;margin:0 auto}
 .attente .rond-grand{width:86px;height:86px;border-radius:28px;background:var(--ambre-pale);display:grid;place-items:center;margin:0 auto 22px}
@@ -508,30 +513,79 @@ img.scene{object-fit:cover;object-position:center 30%}
 .mouvement .montant{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:14px}
 .mouvement .montant.e{color:#0C6A4C} .mouvement .montant.s{color:#B32F4C}
 
-/* ---------- DISCUSSIONS ---------- */
-.salons{display:flex;gap:7px;overflow-x:auto;padding:12px 20px 10px;scrollbar-width:none}
-.salons::-webkit-scrollbar{display:none}
-.salons button{border:1px solid var(--trait-fort);background:var(--surface);color:var(--doux);border-radius:99px;
-  padding:9px 15px;font-family:var(--police);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
-.salons button.on{background:var(--degrade);color:#fff;border-color:transparent}
-.fil{padding:6px 20px 90px;display:flex;flex-direction:column;gap:10px}
-.bulle{max-width:82%;background:var(--surface);border:1px solid var(--trait);border-radius:18px 18px 18px 6px;
-  padding:11px 14px;box-shadow:var(--ombre);align-self:flex-start;position:relative}
+/* ---------- ÉCHANGES (messagerie) ----------
+   Téléphone : la liste, puis la conversation en plein écran.
+   Ordinateur : la liste à gauche, la conversation à droite. */
+.messagerie{padding:14px 20px 0}
+.conv-outils{display:flex;gap:8px;align-items:center}
+.conv-outils .recherche{flex:1;min-width:0}
+.conv-outils .btn{flex:0 0 auto;gap:6px;padding:12px 16px}
+.conv-titre{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--faible);margin:18px 4px 8px}
+.conv{display:flex;align-items:center;gap:12px;width:100%;padding:11px 12px;background:var(--surface);
+  border:1px solid var(--trait);border-radius:16px;margin-bottom:8px;font-family:var(--police);text-align:left;
+  cursor:pointer;color:var(--encre);transition:background .15s ease,border-color .15s ease}
+.conv:hover{border-color:var(--v3)}
+.conv.on{border-color:var(--v3);background:var(--v-pale)}
+.avatar{width:46px;height:46px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;
+  background:var(--degrade);color:#fff;font-weight:800;font-size:15px;letter-spacing:.02em}
+.avatar.groupe{border-radius:15px;background:var(--v-pale2);font-size:21px}
+.conv-corps{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.conv-ligne{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+.conv-ligne b{font-size:14.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.conv-ligne small{font-size:11.5px;color:var(--faible);font-weight:600;flex:0 0 auto}
+.conv-apercu{font-size:13px;color:var(--doux);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;font-weight:500}
+.non-lus{min-width:21px;height:21px;border-radius:99px;background:var(--v2);color:#fff;font-size:11px;font-weight:800;
+  display:grid;place-items:center;padding:0 6px;flex:0 0 auto}
+.point-nouveau{width:10px;height:10px;border-radius:50%;background:var(--or);flex:0 0 auto}
+.conv-vide{padding:4px 4px 10px}
+.annuaire{max-height:55dvh;overflow-y:auto}
+.annuaire .conv{margin-bottom:6px}
+
+.conv-fil{display:none;flex-direction:column;background:var(--fond)}
+.conv-tete{display:flex;align-items:center;gap:11px;flex:0 0 auto;background:var(--surface);border-bottom:1px solid var(--trait);
+  padding:10px 14px;padding-top:calc(10px + env(safe-area-inset-top))}
+.conv-tete .avatar{width:40px;height:40px;font-size:14px}
+.conv-tete .avatar.groupe{font-size:19px;border-radius:13px}
+.conv-titres{min-width:0;display:flex;flex-direction:column}
+.conv-titres b{font-size:15.5px;font-weight:800;letter-spacing:-.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.conv-titres small{font-size:12px;color:var(--faible);font-weight:600}
+.conv-retour{width:40px;height:40px;border-radius:50%;border:none;background:var(--fond);color:var(--encre);
+  display:grid;place-items:center;cursor:pointer;flex:0 0 auto}
+.fil{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+  padding:14px 14px 12px;display:flex;flex-direction:column;gap:6px}
+.fil-vide{margin:auto 0;padding:16px 0}
+.bulle{max-width:80%;background:var(--surface);border:1px solid var(--trait);border-radius:18px 18px 18px 6px;
+  padding:8px 13px 6px;box-shadow:0 1px 2px rgba(20,26,46,.05);align-self:flex-start;position:relative;margin-top:4px}
+.bulle.suite{margin-top:-2px;border-top-left-radius:6px}
 .bulle.moi{align-self:flex-end;border-radius:18px 18px 6px 18px;background:var(--v-pale2);border-color:transparent}
-.bulle .qui{font-size:11.5px;font-weight:800;color:var(--v2);margin-bottom:3px}
-.bulle .txt{font-size:14px;color:var(--encre);white-space:pre-wrap;word-break:break-word;font-weight:500}
-.bulle .h{font-size:10.5px;color:var(--faible);font-weight:600;margin-top:4px;text-align:right}
-.bulle .suppr{position:absolute;top:5px;right:7px;border:none;background:none;color:var(--faible);cursor:pointer;
-  font-size:15px;line-height:1;opacity:.5;padding:2px 4px}
-.jour-fil{text-align:center;font-size:11px;font-weight:800;color:var(--faible);text-transform:uppercase;letter-spacing:.08em;margin:6px 0}
-.ecrire{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));
-  width:min(560px,calc(100% - 24px));display:flex;gap:8px;background:var(--surface);border:1px solid var(--trait);
-  border-radius:26px;padding:6px 6px 6px 16px;box-shadow:0 10px 30px rgba(20,26,46,.16);z-index:20;align-items:flex-end}
-.ecrire textarea{flex:1;border:none;outline:none;resize:none;font-family:var(--police);font-size:15px;
-  background:none;color:var(--encre);max-height:96px;padding:12px 0;line-height:1.4}
-.ecrire button{width:44px;height:44px;border-radius:50%;border:none;background:var(--degrade);color:#fff;
-  cursor:pointer;flex:0 0 auto;display:grid;place-items:center;margin-bottom:1px}
-.ecrire button svg{width:19px;height:19px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bulle.moi.suite{border-top-right-radius:6px;border-top-left-radius:18px}
+.bulle .qui{font-size:12px;font-weight:800;color:var(--v2);margin-bottom:2px}
+.bulle .txt{font-size:15px;color:var(--encre);white-space:pre-wrap;word-break:break-word;font-weight:500;line-height:1.45}
+.bulle .h{font-size:10.5px;color:var(--faible);font-weight:600;margin-top:2px;text-align:right}
+.bulle.moi{padding-right:30px}
+.bulle .suppr{position:absolute;top:4px;right:6px;border:none;background:none;color:var(--faible);cursor:pointer;
+  font-size:13px;line-height:1;opacity:.55;padding:4px}
+.bulle:not(.moi) .suppr{position:static;float:right;margin:-2px -6px 0 8px}
+.jour-fil{text-align:center;margin:10px 0 4px}
+.jour-fil span{display:inline-block;background:var(--surface);border:1px solid var(--trait);border-radius:99px;padding:4px 12px;
+  font-size:11px;font-weight:700;color:var(--faible)}
+.ecrire{flex:0 0 auto;display:flex;gap:8px;align-items:flex-end;background:var(--surface);border-top:1px solid var(--trait);
+  padding:8px 10px;padding-bottom:calc(8px + env(safe-area-inset-bottom))}
+/* 16 px minimum : en dessous, l'iPhone zoome sur la zone de saisie et l'écran « se fige » */
+.ecrire textarea{flex:1;min-width:0;border:1px solid var(--trait-fort);border-radius:22px;outline:none;resize:none;
+  font-family:var(--police);font-size:16px;background:var(--fond);color:var(--encre);max-height:120px;
+  padding:11px 16px;line-height:1.35;display:block}
+.ecrire textarea:focus{border-color:var(--v2)}
+.ecrire button{width:46px;height:46px;border-radius:50%;border:none;background:var(--degrade);color:#fff;
+  cursor:pointer;flex:0 0 auto;display:grid;place-items:center}
+.ecrire button:disabled{opacity:.6}
+.ecrire button svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* téléphone : la conversation occupe toute la partie visible de l'écran (au-dessus du clavier) */
+.messagerie[data-vue="fil"] .conv-fil{display:flex;position:fixed;left:0;right:0;z-index:45;
+  top:var(--decalage-visible,0px);height:var(--hauteur-visible,100dvh)}
+body.conversation-ouverte{overflow:hidden}
+body.conversation-ouverte .nav{display:none !important}
 
 /* ---------- GUIDE ---------- */
 .gd-part{background:var(--surface);border:1px solid var(--trait);border-radius:20px;padding:18px;margin-bottom:11px;box-shadow:var(--ombre)}
@@ -609,7 +663,7 @@ img.scene{object-fit:cover;object-position:center 30%}
   .g4{grid-template-columns:repeat(3,1fr)}
   .g2{grid-template-columns:1fr 1fr}
   .pad{padding:0 28px}
-  .salons,.fil{padding-left:28px;padding-right:28px}
+  .messagerie{padding-left:28px;padding-right:28px}
   .flotte{margin-left:28px;margin-right:28px}
   .titre{font-size:30px}
   .hero h1{font-size:44px}
@@ -658,8 +712,27 @@ img.scene{object-fit:cover;object-position:center 30%}
   .app[data-etat="dedans"] .entete-tel{display:none}
   .app[data-etat="dedans"] .flotte{margin:14px 28px 0}
   .app[data-etat="dedans"] .pad{padding:0 28px}
-  .app[data-etat="dedans"] .ecrire{left:auto;right:28px;transform:none;bottom:26px;width:min(620px,calc(100% - 330px))}
-  .app[data-etat="dedans"] .fil{padding-bottom:110px}
+  /* messagerie en deux colonnes */
+  .app[data-etat="dedans"] .messagerie{display:grid;grid-template-columns:minmax(290px,360px) 1fr;gap:16px;
+    margin:16px 28px 0;padding:0;height:calc(100dvh - 196px);min-height:460px}
+  .conv-panneau{display:flex;flex-direction:column;min-height:0;background:var(--surface);border:1px solid var(--trait);
+    border-radius:20px;padding:14px 10px 6px;box-shadow:var(--ombre)}
+  .conv-outils{padding:0 4px}
+  .conv-outils .btn{display:none}
+  .conv-liste{overflow-y:auto;flex:1;min-height:0;padding:0 4px}
+  .conv-panneau .conv{border-color:transparent;margin-bottom:2px;padding:10px}
+  .conv-panneau .conv.on{border-color:transparent;background:var(--v-pale)}
+  .conv-panneau .conv:hover:not(.on){background:var(--fond)}
+  .app[data-etat="dedans"] .conv-fil{display:flex !important;position:static !important;height:auto !important;min-height:0;
+    border:1px solid var(--trait);border-radius:20px;overflow:hidden;box-shadow:var(--ombre)}
+  .conv-tete{padding:12px 18px}
+  .conv-retour{display:none}
+  .fil{padding:18px 22px 14px}
+  .bulle{max-width:68%}
+  .ecrire{padding:12px 16px}
+  body.conversation-ouverte{overflow:auto}
+  .entete-compacte{min-height:0;padding:22px 32px}
+  .entete-compacte h1{font-size:24px}
   .g2{grid-template-columns:1.3fr 1fr}
   .voile{align-items:center}
   .feuille{border-radius:24px;max-width:540px;margin:0 20px}
@@ -690,3 +763,50 @@ h2.titre.entete-tel{display:none}
 p.intro.entete-tel{margin-top:14px}
 @media (min-width:1000px){ .badge-flottant.b1{left:-70px} }
 .ligne-fiche.entete-tel h2.titre{display:none}
+
+/* ============================================================
+   PHOTOS ET LOGO — cadrage propre sur téléphone et ordinateur
+   ============================================================ */
+/* Le logo garde une taille fixe partout où il accompagne le nom de l'église
+   (sans cela, sur l'accueil du téléphone, il s'affichait en géant). */
+.marque .logo-tuile{width:32px;height:32px;border-radius:10px;font-size:14px}
+.dome .marque .logo-tuile{width:34px;height:34px;border-radius:11px}
+.marque .logo-tuile img{padding:8%}
+
+/* Les photos gardent leur point d'intérêt (visages) grâce à object-position,
+   fixé photo par photo dans js/scenes.js */
+img.scene.photo{object-fit:cover}
+.barre{min-height:168px}
+#e-discussions .barre{min-height:132px}
+
+/* Ordinateur : la photo occupe la partie droite du bandeau et se fond dans la
+   couleur de l'église ; elle n'est plus étirée sur toute la largeur. */
+@media (min-width:1000px){
+  .entete{background:var(--degrade);min-height:240px}
+  .entete>img.scene.photo{inset:0 0 0 auto;width:62%;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 34%);mask-image:linear-gradient(90deg,transparent 0%,#000 34%)}
+  .entete>.voile-scene{background:
+    linear-gradient(90deg,var(--v-encre) 0%,color-mix(in srgb,var(--v-encre) 55%,transparent) 42%,transparent 70%),
+    linear-gradient(0deg,rgba(10,14,30,.45) 0%,transparent 55%)}
+  .entete-compacte{min-height:0}
+  .entete-compacte>img.scene.photo{width:46%}
+}
+@media (min-width:1500px){
+  .entete>img.scene.photo{width:55%}
+}
+
+/* texte en gras dans le paragraphe d'un programme (« Thème : ») */
+.prog .corps p b{display:inline;font-size:inherit;margin:0;letter-spacing:0}
+@media (min-width:1000px){
+  /* respiration entre le bandeau illustré et le contenu de la page */
+  .app[data-etat="dedans"] .entete ~ .pad{margin-top:24px}
+}
+/* téléphone : un peu d'air entre le bandeau illustré et le contenu */
+.barre ~ .pad{padding-top:18px}
+.filtres button.on{box-shadow:none}
+/* site public sur téléphone : « Connexion » visible, le bouton d'inscription est déjà dans la page */
+@media (max-width:899px){
+  .lien-clair{display:block;border:1px solid rgba(255,255,255,.35);border-radius:99px;padding:9px 16px}
+  .site-nav .actions .btn{display:none}
+}
+a.btn{text-decoration:none}

@@ -107,27 +107,52 @@ automatiquement les couleurs de votre logo.
 Dans **Apparence → Ambiance illustrée**, vous choisissez soit « Au fil des écrans »
 (l'illustration change selon la page), soit une seule ambiance gardée partout.
 
-> Depuis cette version, trois ambiances (prière, croix, adoration) et l'écran
-> « Messages du pasteur » utilisent de **vraies photos de l'église** (dossier
-> `img/`) à la place du dessin. Les trois autres ambiances (Bible, colombe,
-> ville) restent en dessin : envoyez-moi d'autres photos si vous voulez les
-> remplacer aussi.
+> Toutes les ambiances utilisent maintenant de **vraies photos de l'église**
+> (dossier `img/`). Chaque photo a un **point de cadrage** (les visages) réglé
+> dans `js/scenes.js` (tableau `CADRAGE`) : c'est lui qui reste visible quand
+> la photo est recadrée. Sur ordinateur, la photo occupe la partie droite du
+> bandeau et se fond dans la couleur de l'église. Pour ajouter une photo :
+> déposez-la dans `img/` et ajoutez sa ligne dans `CADRAGE`.
 
 ## 4 quater. L'écran de bienvenue
 
-À l'ouverture du site, une photo plein écran (`img/bienvenue.jpg`) s'affiche
-quelques secondes avec un bouton **Entrer**. Elle ne réapparaît pas tant que
+À l'ouverture du site, l'affiche `img/bienvenue.jpg` s'affiche **en entier**
+(jamais coupée, même sur un téléphone en hauteur), sur un fond flou tiré de
+l'affiche elle-même, avec un bouton **Entrer**. Elle ne réapparaît pas tant que
 le navigateur reste ouvert. Pour la changer, remplacez le fichier
 `img/bienvenue.jpg` par une autre image de même nom.
 
 ---
 
-## 4 ter. Les discussions
+## 4 ter. Les discussions (écran « Échanges »)
 
-Il y a **un salon pour toute l'église** — tout le monde y écrit, c'est le grand
-groupe — **plus un salon par cellule** et **un salon par département**, réservés à
-leurs membres. On passe de l'un à l'autre par les pastilles en haut de l'écran
-Discussions.
+L'écran se présente comme une messagerie :
+
+- **Groupes** : un salon pour **toute l'église** (tout le monde y écrit), un salon
+  par **cellule** et un par **département**, réservés à leurs membres.
+- **Messages privés** : le bouton **Nouveau** ouvre la liste des membres ; on
+  choisit la personne et on lui écrit. Seuls les deux correspondants voient la
+  conversation. Le bouton **Écrire** sous chaque membre (Ma cellule, Mon
+  département, Membres) ouvre aussi une conversation privée.
+- Une pastille rouge sur « Échanges » compte les messages privés non lus ; la
+  mention « Lu » apparaît sous vos messages une fois lus.
+
+Sur téléphone, on voit d'abord la liste des conversations ; une conversation
+s'ouvre en plein écran, la zone de saisie reste collée au-dessus du clavier.
+Sur ordinateur, la liste est à gauche et la conversation à droite.
+
+## 4 quinquies. Règles automatiques (dans la base de données)
+
+- **Nommer un berger** (écran Cellules) : la personne devient « berger » et est
+  rattachée à cette cellule. L'ancien berger redevient « membre » s'il ne dirige
+  plus aucune cellule. Même principe pour les **chefs de département**.
+- **Retirer le rôle** de berger ou de chef (écran Membres) lui retire aussi la
+  cellule ou le département qu'il dirigeait ; **suspendre** un compte aussi.
+- **Culte du dimanche** : l'offrande et la dîme saisies sur la fiche sont
+  reportées **automatiquement** dans les Finances (et corrigées ou supprimées
+  avec la fiche). Plus besoin de les saisir deux fois.
+- Le rappel « Fiche de la semaine à remplir » n'apparaît qu'une fois le jour de
+  réunion de la cellule passé.
 
 ---
 
@@ -181,16 +206,18 @@ Ne mettez **jamais** la clé `service_role` de Supabase dans ce site.
 index.html                 l'application (tous les écrans)
 manifest.webmanifest       nom + icône pour l'installation sur téléphone
 _headers                   réglages de sécurité Netlify
-css/app.css                charte : bleu profond, bleu électrique, accent orange ; Montserrat + Inter
+css/app.css                charte : couleur du logo et ses nuances, touche dorée ; police Plus Jakarta Sans
 js/config.js               adresse Supabase, clé publique, valeurs par défaut
 js/marque.js               nom, logo, icône et couleurs de l'église
 js/noyau.js                connexion, inscription, navigation, rôles, verset du jour
 js/admin.js                tableau de bord, cellules, membres, départements, fiches
 js/berger.js               ma cellule, fiche de réunion, mon département
 js/gestion.js              programmes, calendrier, messages, dimanches, finances
-js/chat.js                 discussions
+js/chat.js                 échanges : salons de groupe et messages privés
+js/scenes.js               photos et illustrations des bandeaux (cadrage des photos)
 js/membre.js               accueil, menu Plus, profil, guide
 js/apparence.js            écran « Apparence »
 js/app.js                  démarrage
+img/                       photos de l'église, affiche de bienvenue, logo de secours
 icons/ fonts/ vendor/      icônes par défaut, polices, bibliothèque Supabase
 ```

@@ -29,7 +29,11 @@
       '<div class="mb-detail">' + esc(App.ROLES[u.role] || 'Membre') + '</div></div>' +
       '<span class="etat ' + u.statut + '">' + esc(App.STATUTS[u.statut]) + '</span></div>' +
       (u.telephone ? '<div class="mb-chiffres"><a href="tel:' + esc(String(u.telephone).replace(/\s/g, '')) +
-        '" style="color:var(--v1);font-weight:700;text-decoration:none">' + esc(u.telephone) + '</a></div>' : '') +
+        '" style="color:var(--v1);font-weight:700;text-decoration:none">' + esc(App.fmtTel(u.telephone)) + '</a></div>' : '') +
+      (u.id !== App.etat.profil.id && u.statut === 'actif'
+        ? '<div class="mb-actions"><button class="btn btn-doux btn-s" data-act="ecrire-a" data-id="' + esc(u.id) + '">Écrire</button>' +
+          (u.telephone ? '<a class="btn btn-vide btn-s" href="tel:' + esc(App.normaliserTel(u.telephone)) + '">Appeler</a>' : '') + '</div>'
+        : '') +
       '</div>';
   }
 
