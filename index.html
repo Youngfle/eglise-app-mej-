@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#4A3B85">
+<meta name="application-name" content="MEJ">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MEJ">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="description" content="MEJ — Ministère d'Évangélisation Jubilé : cellules, programmes, comptes rendus, finances et discussions.">
+<title>MEJ</title>
+<!-- Manifeste, icône et titre : remplacés automatiquement par le logo et le nom choisis dans « Apparence » -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/plus-jakarta-sans-latin-wght-normal.woff2">
+<link rel="stylesheet" href="css/app.css">
+<script src="js/config.js"></script>
+<script src="js/scenes.js"></script>
+<script src="js/marque.js"></script>
+</head>
+<body>
+
+<div class="ecran-bienvenue" id="ecran-bienvenue">
+  <img src="img/bienvenue.jpg" alt="">
+  <div class="ecran-bienvenue-voile"></div>
+  <div class="ecran-bienvenue-corps">
+    <h1>Bienvenue</h1>
+    <p>Ministère d'Évangélisation Jubilé</p>
+    <button class="btn btn-plein" onclick="fermerEcranBienvenue()">Entrer →</button>
+  </div>
+</div>
+
+<div class="app" id="app" data-etat="dehors" data-role="membre">
+
+  <!-- ======================= BARRE LATÉRALE (ordinateur) ======================= -->
+  <aside class="rail">
+    <div class="logo"><span class="logo-tuile" data-logo></span>
+      <span><b data-nom>Mon Église</b><small data-sous-titre>Gestion</small></span></div>
+    <nav>
+      <button data-cible="bienvenue" onclick="aller('bienvenue')">
+        <svg viewBox="0 0 24 24"><path d="M4 10.5L12 4l8 6.5V19a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19z"/><path d="M9.5 20.5v-6h5v6"/></svg>Accueil</button>
+
+      <div class="groupe" data-roles="super_admin">Administration</div>
+      <button data-cible="tableau" data-roles="super_admin" onclick="aller('tableau')">
+        <svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="8.5" rx="2.5"/><rect x="13.5" y="3.5" width="7" height="5" rx="2.5"/><rect x="3.5" y="15.5" width="7" height="5" rx="2.5"/><rect x="13.5" y="12" width="7" height="8.5" rx="2.5"/></svg>Tableau de bord</button>
+      <button data-cible="cellules" data-roles="super_admin" onclick="aller('cellules')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c1.3-3.6 4-5.3 7-5.3s5.7 1.7 7 5.3"/></svg>Cellules</button>
+      <button data-cible="membres" data-roles="super_admin" onclick="aller('membres')">
+        <svg viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.4"/><path d="M3 19c1-3 3.4-4.5 6-4.5S14 16 15 19"/><path d="M16 7.5a3.4 3.4 0 0 1 0 6.5"/></svg>Membres<span class="compteur" data-compteur hidden>0</span></button>
+      <button data-cible="departements" data-roles="super_admin" onclick="aller('departements')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="4"/><path d="M3 10h18M9 6V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V6"/></svg>Départements</button>
+      <button data-cible="fiches" data-roles="super_admin" onclick="aller('fiches')">
+        <svg viewBox="0 0 24 24"><rect x="4.5" y="3.5" width="15" height="17" rx="4"/><path d="M8.5 9h7M8.5 13h7"/></svg>Fiches reçues</button>
+
+      <div class="groupe" data-roles="berger">Ma cellule</div>
+      <button data-cible="ma-cellule" data-roles="berger" onclick="aller('ma-cellule')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c1.3-3.6 4-5.3 7-5.3s5.7 1.7 7 5.3"/></svg>Ma cellule</button>
+      <button data-cible="fiche-cellule" data-roles="berger" onclick="nouvelleFiche()">
+        <svg viewBox="0 0 24 24"><rect x="4.5" y="3.5" width="15" height="17" rx="4"/><path d="M8.5 9h7M8.5 13h7"/></svg>Fiche de réunion</button>
+      <button data-cible="mes-fiches" data-roles="berger" onclick="aller('mes-fiches')">
+        <svg viewBox="0 0 24 24"><path d="M12 7.5V12l3 2"/><circle cx="12" cy="12" r="8.5"/></svg>Historique</button>
+
+      <div class="groupe" data-roles="chef_departement">Mon département</div>
+      <button data-cible="mon-departement" data-roles="chef_departement" onclick="aller('mon-departement')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="4"/><path d="M3 10h18"/></svg>Mon département</button>
+
+      <div class="groupe">Vie de l'église</div>
+      <button data-cible="programmes" onclick="aller('programmes')">
+        <svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="4"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>Programmes</button>
+      <button data-cible="calendrier" onclick="aller('calendrier')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Calendrier</button>
+      <button data-cible="messages" onclick="aller('messages')">
+        <svg viewBox="0 0 24 24"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7A2.5 2.5 0 0 1 17.5 16H9l-5 4z"/><path d="M8 8.5h8M8 12h5"/></svg>Messages</button>
+      <button data-cible="discussions" onclick="aller('discussions')">
+        <svg viewBox="0 0 24 24"><path d="M7.5 17H6a2.5 2.5 0 0 1-2.5-2.5v-7A2.5 2.5 0 0 1 6 5h9a2.5 2.5 0 0 1 2.5 2.5V9"/><path d="M9 11.5A2.5 2.5 0 0 1 11.5 9H18a2.5 2.5 0 0 1 2.5 2.5v6A2.5 2.5 0 0 1 18 20h-2l-4 3v-3h-1a2.5 2.5 0 0 1-2-1"/></svg>Discussions</button>
+
+      <div class="groupe" data-roles="super_admin comptable">Comptes de l'église</div>
+      <button data-cible="dimanche" data-roles="super_admin comptable" onclick="aller('dimanche')">
+        <svg viewBox="0 0 24 24"><path d="M4 5.5A2 2 0 0 1 6 4h5v16H6a2 2 0 0 1-2-1.5z"/><path d="M20 5.5A2 2 0 0 0 18 4h-5v16h5a2 2 0 0 0 2-1.5z"/></svg>Cultes du dimanche</button>
+      <button data-cible="finances" data-roles="super_admin comptable" onclick="aller('finances')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12.5" rx="3"/><circle cx="12" cy="12.2" r="2.6"/><path d="M6.5 12.2h.01M17.5 12.2h.01"/></svg>Finances</button>
+
+      <div class="groupe">Réglages</div>
+      <button data-cible="apparence" data-roles="super_admin" onclick="aller('apparence')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="8.5" cy="10" r="1.2"/><circle cx="12" cy="7.5" r="1.2"/><circle cx="15.5" cy="10" r="1.2"/><path d="M12 20.5c-1.2 0-1.6-1-1-1.9.6-.9.3-2.1-1.1-2.1H8.5"/></svg>Apparence</button>
+      <button data-cible="guide" onclick="aller('guide')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.8 9.4a2.3 2.3 0 0 1 4.4.8c0 1.6-2.2 2-2.2 3.3M12 17.2v.1"/></svg>Guide</button>
+    </nav>
+    <div class="bas">
+      <button class="moi" data-cible="mon-profil" onclick="aller('mon-profil')">
+        <span class="pastille v" id="rail-init">?</span>
+        <span><b id="rail-nom">Compte</b><small id="rail-role">Membre</small></span>
+      </button>
+    </div>
+  </aside>
+
+  <div class="corps">
+
+  <!-- ======================= BARRE DU SITE PUBLIC ======================= -->
+  <header class="site-nav">
+    <div class="dedans">
+      <a class="marque" href="#accueil" onclick="aller('accueil');return false;">
+        <span class="logo-tuile" data-logo></span>
+        <span><span data-nom>Mon Église</span><small data-sous-titre>Communauté</small></span>
+      </a>
+      <nav class="liens">
+        <a href="#accueil" onclick="aller('accueil');return false;">Accueil</a>
+        <a href="#a-fonctions">Fonctionnalités</a>
+        <a href="#a-espaces">Espaces</a>
+        <a href="#a-etapes">Comment ça marche</a>
+      </nav>
+      <div class="actions">
+        <button class="lien-clair" onclick="aller('connexion')">Connexion</button>
+        <button class="btn btn-plein" onclick="aller('inscription')">Créer mon compte</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="vue" id="vue">
+
+    <!-- ======================= ACCUEIL PUBLIC (site web) ======================= -->
+    <section class="ecran on" id="e-accueil">
+
+      <!-- ---------- HÉROS ---------- -->
+      <div class="hero">
+        <div class="dedans">
+          <div>
+            <span class="sur-titre">Cellules · Programmes · Finances · Discussions</span>
+            <h1>Toute la vie de l'église,<br><span class="dore">au même endroit.</span></h1>
+            <p class="accroche">Une application pensée pour l'assemblée : chaque berger suit sa cellule,
+              chaque membre reçoit les programmes et les messages, et l'administration garde une vue
+              claire sur tout — du téléphone comme de l'ordinateur.</p>
+            <div class="cta">
+              <button class="btn btn-plein" onclick="aller('inscription')">Créer mon compte →</button>
+              <button class="btn btn-clair" onclick="aller('connexion')">J'ai déjà un compte</button>
+            </div>
+            <div class="preuves">
+              <span><i></i>Accès immédiat</span>
+              <span><i></i>5 espaces selon le rôle</span>
+              <span><i></i>Données protégées</span>
+            </div>
+          </div>
+
+          <!-- maquette dessinée : aucun fichier image, tout est en HTML/CSS -->
+          <div class="maquette">
+            <div class="cadre">
+              <span class="encoche"></span>
+              <div class="ecran-mini">
+                <div class="tete">
+                  <span class="h"><i></i><span data-nom>Mon Église</span></span>
+                  <b>Bonjour Junior</b><span>Lundi 21 septembre</span>
+                </div>
+                <div class="cartes">
+                  <div class="c or"><div class="t">Fiche de la semaine à remplir</div><div class="s">Cellule Bethel</div></div>
+                  <div class="kpis">
+                    <div class="c"><b>128</b><div class="s">Membres actifs</div></div>
+                    <div class="c"><b>6</b><div class="s">Cellules</div></div>
+                  </div>
+                  <div class="c"><div class="t">Présences aux cellules</div>
+                    <div class="barres"><i style="height:38%"></i><i style="height:55%"></i><i style="height:46%"></i><i style="height:72%"></i><i style="height:64%"></i><i style="height:88%"></i><i style="height:76%"></i><i style="height:100%"></i></div>
+                  </div>
+                  <div class="c"><div class="t">Veillée de prière</div><div class="s">Vendredi à 18h00 · Toute l'église</div></div>
+                </div>
+                <div class="onglets"><i></i><i></i><i></i><i></i><i></i></div>
+              </div>
+            </div>
+            <div class="badge-flottant b1"><i>✓</i>Fiche enregistrée</div>
+            <div class="badge-flottant b2"><i>₣</i>Comptes à jour</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---------- CHIFFRES ---------- -->
+      <div class="bande-chiffres">
+        <div class="dedans">
+          <div><b>5</b><span>espaces selon le rôle</span></div>
+          <div><b>20+</b><span>écrans de gestion</span></div>
+          <div><b>100%</b><span>en français</span></div>
+          <div><b>0 F</b><span>d'installation</span></div>
+        </div>
+      </div>
+
+      <!-- ---------- FONCTIONNALITÉS ---------- -->
+      <div class="bloc" id="a-fonctions">
+        <div class="dedans">
+          <div class="tete-bloc">
+            <div class="eyebrow">Ce que fait l'application</div>
+            <h2>Une maison bien tenue, du premier membre au dernier franc.</h2>
+            <p>Tout ce dont une église a besoin au quotidien, sans tableur ni cahier.</p>
+          </div>
+          <div class="grille-cartes">
+            <div class="carte-f">
+              <span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c1.3-3.6 4-5.3 7-5.3s5.7 1.7 7 5.3"/></svg></span>
+              <h3>Cellules de maison</h3>
+              <p>Créez vos cellules, fixez le jour et l'heure de réunion, nommez un berger. Il ne voit alors que sa cellule.</p>
+            </div>
+            <div class="carte-f accent">
+              <span class="ic"><svg viewBox="0 0 24 24"><rect x="4.5" y="3.5" width="15" height="17" rx="4"/><path d="M8.5 9h7M8.5 13h7"/></svg></span>
+              <h3>Comptes rendus hebdomadaires</h3>
+              <p>Hommes, femmes, enfants, nouveaux venus, conversions… Le total est calculé par la base : impossible à falsifier.</p>
+            </div>
+            <div class="carte-f">
+              <span class="ic"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="4"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg></span>
+              <h3>Programmes et calendrier</h3>
+              <p>Veillées, croisades, conventions, réunions de jeunes : avec leurs séances, pour toute l'église ou pour un seul groupe.</p>
+            </div>
+            <div class="carte-f">
+              <span class="ic"><svg viewBox="0 0 24 24"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7A2.5 2.5 0 0 1 17.5 16H9l-5 4z"/><path d="M8 8.5h8M8 12h5"/></svg></span>
+              <h3>Messages du pasteur</h3>
+              <p>Enseignements et annonces, avec lien vidéo ou audio, publiés tout de suite ou programmés pour plus tard.</p>
+            </div>
+            <div class="carte-f accent">
+              <span class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12.5" rx="3"/><circle cx="12" cy="12.2" r="2.6"/><path d="M6.5 12.2h.01M17.5 12.2h.01"/></svg></span>
+              <h3>Dimanches et finances</h3>
+              <p>Présences, offrandes et dîmes de chaque culte ; entrées et sorties en francs CFA, avec le solde du mois et de l'année.</p>
+            </div>
+            <div class="carte-f">
+              <span class="ic"><svg viewBox="0 0 24 24"><path d="M7.5 17H6a2.5 2.5 0 0 1-2.5-2.5v-7A2.5 2.5 0 0 1 6 5h9a2.5 2.5 0 0 1 2.5 2.5V9"/><path d="M9 11.5A2.5 2.5 0 0 1 11.5 9H18a2.5 2.5 0 0 1 2.5 2.5v6A2.5 2.5 0 0 1 18 20h-2l-4 3v-3h-1a2.5 2.5 0 0 1-2-1"/></svg></span>
+              <h3>Discussions</h3>
+              <p>Un salon pour toute l'assemblée, un par cellule, un par département. Chacun ne voit que les siens.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---------- ESPACES / RÔLES ---------- -->
+      <div class="bloc clair" id="a-espaces">
+        <div class="dedans">
+          <div class="tete-bloc">
+            <div class="eyebrow">Un espace pour chacun</div>
+            <h2>Chaque serviteur voit ce qui le concerne.</h2>
+            <p>Les droits sont appliqués par la base de données, pas seulement par l'écran.</p>
+          </div>
+          <div class="grille" style="grid-template-columns:repeat(2,1fr)">
+            <div class="carte-role"><span class="ic"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="8.5" rx="2.5"/><rect x="13.5" y="3.5" width="7" height="5" rx="2.5"/><rect x="3.5" y="15.5" width="7" height="5" rx="2.5"/><rect x="13.5" y="12" width="7" height="8.5" rx="2.5"/></svg></span>
+              <b>Administrateur</b><span>Pasteur, secrétariat : tout l'ensemble</span></div>
+            <div class="carte-role"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c1.3-3.6 4-5.3 7-5.3s5.7 1.7 7 5.3"/></svg></span>
+              <b>Berger</b><span>Sa cellule, ses membres, ses fiches</span></div>
+            <div class="carte-role"><span class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="4"/><path d="M3 10h18"/></svg></span>
+              <b>Chef de département</b><span>Ses ouvriers et son salon</span></div>
+            <div class="carte-role"><span class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12.5" rx="3"/><circle cx="12" cy="12.2" r="2.6"/></svg></span>
+              <b>Comptable</b><span>Dimanches et finances</span></div>
+          </div>
+          <div style="max-width:560px;margin:22px auto 0">
+            <div class="carte-role"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.4"/><path d="M3 19c1-3 3.4-4.5 6-4.5S14 16 15 19"/><path d="M16 7.5a3.4 3.4 0 0 1 0 6.5"/></svg></span>
+              <b>Membre</b><span>Programmes, calendrier, messages, discussions et son profil</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---------- VERSET ---------- -->
+      <div class="bloc" style="padding-top:0">
+        <div class="dedans" style="max-width:720px">
+          <div class="verset" id="verset-accueil"></div>
+        </div>
+      </div>
+
+      <!-- ---------- VALEURS ---------- -->
+      <div class="bande-valeurs">
+        <div class="dedans">
+          <div class="valeur"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 3v18M7 8h10"/></svg></span>
+            <b>Foi</b><span>Au service de l'Église et de sa mission.</span></div>
+          <div class="valeur"><span class="ic"><svg viewBox="0 0 24 24"><path d="M9.5 18h5M10 21h4"/><path d="M12 3a6 6 0 0 1 3.5 10.9c-.6.5-.9 1-.9 1.6H9.4c0-.6-.3-1.1-.9-1.6A6 6 0 0 1 12 3z"/></svg></span>
+            <b>Simplicité</b><span>Compréhensible par tous, dès la première ouverture.</span></div>
+          <div class="valeur"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l7.5 3v6c0 4.2-3 7.7-7.5 9-4.5-1.3-7.5-4.8-7.5-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
+            <b>Sécurité</b><span>Chaque donnée protégée, rôle par rôle.</span></div>
+          <div class="valeur"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 18l5-6 4 4 7-9"/><path d="M16 7h4v4"/></svg></span>
+            <b>Croissance</b><span>Des chiffres clairs pour décider juste.</span></div>
+          <div class="valeur"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.6c-2 2.2-2 6.6 0 8.8 2-2.2 2-6.6 0-8.8zM3.6 12h16.8"/></svg></span>
+            <b>Ouverture</b><span>Du Congo à toute l'Afrique, sur tout téléphone.</span></div>
+        </div>
+      </div>
+
+      <!-- ---------- ÉTAPES ---------- -->
+      <div class="bloc clair" id="a-etapes">
+        <div class="dedans" style="max-width:720px">
+          <div class="tete-bloc">
+            <div class="eyebrow">Comment ça marche</div>
+            <h2>Trois pas, et c'est parti.</h2>
+          </div>
+          <div class="etape"><span class="rond">1</span><div><b>Créez votre compte</b><span>Votre nom, votre numéro, un mot de passe : trente secondes.</span></div></div>
+          <div class="etape"><span class="rond">2</span><div><b>Entrez aussitôt</b><span>Aucune attente, aucune validation à espérer.</span></div></div>
+          <div class="etape"><span class="rond">3</span><div><b>Un responsable vous rattache</b><span>À votre cellule, à votre département, et votre espace s'adapte.</span></div></div>
+        </div>
+      </div>
+
+      <!-- ---------- APPEL ---------- -->
+      <div class="bloc" style="padding-top:0">
+        <div class="dedans" style="max-width:860px">
+          <div class="appel">
+            <div class="dedans2">
+            <h2>Prêt à rejoindre l'assemblée ?</h2>
+            <p>Créez votre compte maintenant : vous verrez immédiatement les programmes et les messages de l'église.</p>
+            <button class="btn btn-plein" onclick="aller('inscription')">Créer mon compte →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---------- PIED DE PAGE ---------- -->
+      <footer class="pied">
+        <span class="bande"></span>
+        <div class="dedans">
+          <div class="marque"><span class="logo-tuile" data-logo></span><span data-nom>Mon Église</span></div>
+          <div>Application interne de gestion — cellules, programmes, finances et discussions.</div>
+          <div><button class="lien" style="color:var(--or-clair)" onclick="aller('connexion')">Se connecter</button></div>
+        </div>
+      </footer>
+    </section>
+
+    <!-- ======================= INSCRIPTION ======================= -->
+    <section class="ecran" id="e-inscription">
+      <div class="barre"><button class="retour" onclick="aller('accueil')">← Retour</button></div>
+      <div class="pad">
+        <h2 class="titre">Rejoindre l'église</h2>
+        <p class="intro">Votre nom, votre numéro, un mot de passe — et vous entrez aussitôt.</p>
+        <div class="alerte" id="err-inscription"></div>
+        <div class="paire-champ">
+          <div class="champ"><label for="f-prenom">Prénom</label><input id="f-prenom" type="text" placeholder="Jean" autocomplete="given-name"></div>
+          <div class="champ"><label for="f-nom">Nom</label><input id="f-nom" type="text" placeholder="Mbemba" autocomplete="family-name"></div>
+        </div>
+        <div class="champ"><label for="f-tel">Numéro de téléphone</label>
+          <input id="f-tel" type="tel" inputmode="tel" placeholder="06 42 83 322" autocomplete="tel">
+          <p class="aide">C'est avec ce numéro que vous vous connecterez. Aucune adresse mail n'est demandée.</p></div>
+        <div class="champ"><label for="f-mdp">Mot de passe</label><input id="f-mdp" type="password" placeholder="8 caractères au minimum" autocomplete="new-password"></div>
+        <button class="btn btn-plein" id="btn-inscrire" onclick="inscrire()">Créer mon compte</button>
+        <p class="note" style="text-align:center;margin-top:14px">Vos informations restent internes à l'église.</p>
+      </div>
+    </section>
+
+    <!-- ======================= CONNEXION ======================= -->
+    <section class="ecran" id="e-connexion">
+      <div class="barre"><button class="retour" onclick="aller('accueil')">← Retour</button></div>
+      <div class="pad">
+        <h2 class="titre">Content de vous revoir</h2>
+        <p class="intro">Entrez le numéro avec lequel vous vous êtes inscrit.</p>
+        <div class="alerte" id="err-connexion"></div>
+        <div class="champ"><label for="c-tel">Numéro de téléphone</label>
+          <input id="c-tel" type="tel" inputmode="tel" placeholder="06 42 83 322" autocomplete="username"></div>
+        <div class="champ"><label for="c-mdp">Mot de passe</label><input id="c-mdp" type="password" placeholder="Votre mot de passe" autocomplete="current-password"></div>
+        <button class="btn btn-plein" id="btn-connecter" onclick="connecter()">Se connecter</button>
+      </div>
+    </section>
+
+    <!-- ======================= COMPTE SUSPENDU ======================= -->
+    <section class="ecran" id="e-attente">
+      <div class="attente" id="bloc-attente">
+        <span class="logo-tuile" data-logo style="width:64px;height:64px;border-radius:20px;font-size:28px;margin:0 auto 26px"></span>
+        <div class="rond-grand"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></div>
+        <h2 class="titre" id="attente-titre">Accès non disponible</h2>
+        <p id="attente-texte">Contactez un responsable de l'église.</p>
+        <button class="btn btn-plein" id="btn-reverifier" onclick="reverifierStatut()">Vérifier à nouveau</button>
+        <button class="btn btn-vide" style="margin-top:10px" onclick="deconnecter()">Se déconnecter</button>
+      </div>
+    </section>
+
+    <!-- ======================= ACCUEIL INTERNE ======================= -->
+    <section class="ecran" id="e-bienvenue">
+      <div class="dome">
+        <div class="dome-tete"><div class="marque"><span class="logo-tuile" data-logo></span><span class="nom-eglise" data-nom>Mon Église</span></div>
+          <button class="jeton" onclick="aller('mon-profil')"><span class="pastille" data-init>?</span><span data-prenom>Compte</span></button></div>
+        <div class="salut"><span id="bv-jour">—</span><b id="bv-salut">Bienvenue</b></div>
+      </div>
+      <div class="entete"><div><h1 id="bv-salut-pc">Bienvenue</h1><p id="bv-jour-pc">—</p></div>
+        <button class="btn btn-doux btn-s" data-act="recharger-accueil">Actualiser</button></div>
+      <div class="flotte"><div class="verset" id="verset-app"></div></div>
+      <div class="pad limite" style="margin-top:20px;max-width:900px">
+        <div id="bv-rappels"></div>
+        <h3 class="section">Prochains rendez-vous <small><button class="lien" style="padding:0" onclick="aller('calendrier')">Tout voir</button></small></h3>
+        <div id="bv-programmes"><p class="chargement">Chargement…</p></div>
+        <h3 class="section">Dernier message du pasteur</h3>
+        <div id="bv-message"></div>
+      </div>
+    </section>
+
+    <!-- ======================= TABLEAU DE BORD (ADMIN) ======================= -->
+    <section class="ecran" id="e-tableau">
+      <div class="barre"><span class="marque"><span class="logo-tuile" data-logo></span><span class="nom-eglise" data-nom>Mon Église</span></span></div>
+      <div class="entete"><div><h1>Tableau de bord</h1><p id="tb-periode2">Vue d'ensemble de l'église</p></div>
+        <button class="btn btn-doux btn-s" onclick="chargerTableau()">Actualiser</button></div>
+      <div class="pad limite">
+        <h2 class="titre entete-tel">Tableau de bord</h2>
+        <div id="tb-rappel"></div>
+        <div class="grille g4" id="tb-kpi"></div>
+        <div class="grille g2" style="margin-top:14px">
+          <div class="graph"><h4>Présences aux cellules</h4><p class="sous">8 dernières semaines</p>
+            <div id="tb-presences"><p class="chargement">Chargement…</p></div></div>
+          <div class="graph"><h4>Répartition des membres</h4><p class="sous">Par rôle</p>
+            <div id="tb-membres"></div></div>
+        </div>
+        <div class="graph" style="margin-top:14px"><h4>Comptes rendus de la semaine</h4>
+          <p class="sous" id="tb-semaine-sous">—</p><div id="tb-semaine"></div></div>
+      </div>
+    </section>
+
+    <!-- ======================= CELLULES ======================= -->
+    <section class="ecran" id="e-cellules">
+      <div class="barre"><span class="marque"><span class="logo-tuile" data-logo></span><span class="nom-eglise" data-nom>Mon Église</span></span></div>
+      <div class="entete"><div><h1>Cellules</h1><p id="ce-sous">—</p></div>
+        <button class="btn btn-plein btn-s" onclick="formulaireCellule()">Nouvelle cellule</button></div>
+      <div class="pad limite">
+        <div class="ligne-fiche entete-tel" style="margin-bottom:10px"><h2 class="titre" style="margin:0">Cellules</h2>
+          <button class="btn btn-plein btn-s" onclick="formulaireCellule()">+ Nouvelle</button></div>
+        <div id="liste-cellules"><p class="chargement">Chargement…</p></div>
+      </div>
+    </section>
+
+    <!-- ======================= MEMBRES ======================= -->
+    <section class="ecran" id="e-membres">
+      <div class="barre"><span class="marque"><span class="logo-tuile" data-logo></span><span class="nom-eglise" data-nom>Mon Église</span></span></div>
+      <div class="entete"><div><h1>Membres</h1><p id="me-sous">—</p></div></div>
+      <div class="pad limite">
+        <h2 class="titre entete-tel">Membres</h2>
+        <div class="recherche" style="margin-bottom:12px">
+          <input id="me-q" type="search" placeholder="Rechercher un nom, un téléphone…" oninput="rendreMembres()"></div>
+        <div class="filtres" id="filtres-membres">
+          <button class="on" onclick="filtrerMembres(this,'tout')">Tous</button>
+          <button onclick="filtrerMembres(this,'actif')">Actifs</button>
+          <button onclick="filtrerMembres(this,'sans')">Sans cellule</button>
+          <button onclick="filtrerMembres(this,'suspendu')">Suspendus</button>
+        </div>
+        <div id="liste-membres"><p class="chargement">Chargement…</p></div>
+      </div>
+    </section>
+
+    <!-- ======================= DÉPARTEMENTS ======================= -->
+    <section class="ecran" id="e-departements">
+      <div class="barre"><span class="marque"><span class="logo-tuile" data-logo></span><span class="nom-eglise" data-nom>Mon Église</span></span></div>
+      <div class="entete"><div><h1>Départements</h1><p>Louange, intercession, accueil…</p></div>
+        <button class="btn btn-plein btn-s" onclick="formulaireDepartement()">Nouveau département</button></div>
+      <div class="pad limite">
+        <div class="ligne-fiche entete-tel" style="margin-bottom:10px"><h2 class="titre" style="margin:0">Départements</h2>
+          <button class="btn btn-plein btn-s" onclick="formulaireDepartement()">+ Nouveau</button></div>
+        <div id="liste-departements"><p class="chargement">Chargement…</p></div>
+      </div>
+    </section>
+
+    <!-- ======================= FICHES REÇUES (ADMIN) ======================= -->
+    <section class="ecran" id="e-fiches">
+      <div class="barre"><span class="marque"><span class="logo-tuile" data-logo></span><span class="nom-eglise" data-nom>Mon Église</span></span></div>
+      <div class="entete"><div><h1>Fiches reçues</h1><p>Comptes rendus des cellules</p></div></div>
+      <div class="pad limite">
+        <h2 class="titre entete-tel">Fiches reçues</h2>
+        <div class="champ" style="max-width:360px"><label for="fi-cellule">Cellule</label>
+          <select id="fi-cellule" onchange="rendreFichesAdmin()"><option value="">Toutes les cellules</option></select></div>
+        <div id="liste-fiches"><p class="chargement">Chargement…</p></div>
+      </div>
+    </section>
+
+    <!-- ======================= MA CELLULE (BERGER) ======================= -->
+    <section class="ecran" id="e-ma-cellule">
+      <div class="barre"><span class="marque"><span class="logo-tuile" data-logo></span><span class="nom-eglise" data-nom>Mon Église</span></span></div>
+      <div class="entete"><div><h1>Ma cellule</h1><p id="mc-sous">—</p></div></div>
+      <div class="pad limite">
+        <h2 class="titre entete-tel">Ma cellule</h2>
+        <div id="infos-cellule"><p class="chargement">Chargement…</p></div>
+        <h3 class="section">Membres de la cellule <small id="mc-nb"></small></h3>
+        <div id="membres-cellule"><p class="chargement">Chargement…</p></div>
+      </div>
+    </section>
+
+    <!-- ======================= FICHE DE RÉUNION (BERGER) ======================= -->
+    <section class="ecran" id="e-fiche-cellule">
+      <div class="barre"><button class="retour" onclick="aller('mes-fiches')">← Historique</button></div>
+      <div class="entete"><div><h1 id="fc-titre-pc">Fiche de compte rendu</h1><p>Réunion hebdomadaire de cellule</p></div></div>
+      <div class="pad" style="max-width:580px">
+        <h2 class="titre entete-tel" id="fc-titre">Fiche de réunion</h2>
+        <div class="alerte" id="err-fiche"></div>
+        <div class="champ" id="fc-bloc-cellule" hidden><label for="fc-cellule">Cellule</label><select id="fc-cellule"></select></div>
+        <div class="champ"><label for="fc-date">Date de réunion</label><input id="fc-date" type="date"></div>
+        <div class="paire-champ">
+          <div class="champ"><label for="fc-heure-debut">Heure début</label><input id="fc-heure-debut" type="time"></div>
+          <div class="champ"><label for="fc-heure-fin">Heure fin</label><input id="fc-heure-fin" type="time"></div>
+        </div>
+        <div class="paire-champ">
+          <div class="champ"><label for="fc-hommes">Hommes</label><input id="fc-hommes" type="number" inputmode="numeric" min="0" value="0" oninput="calculerTotal()"></div>
+          <div class="champ"><label for="fc-femmes">Femmes</label><input id="fc-femmes" type="number" inputmode="numeric" min="0" value="0" oninput="calculerTotal()"></div>
+        </div>
+        <div class="champ"><label for="fc-enfants">Enfants</label><input id="fc-enfants" type="number" inputmode="numeric" min="0" value="0" oninput="calculerTotal()"></div>
+        <div class="champ"><label for="fc-total">Total présents (calculé automatiquement)</label><input id="fc-total" type="text" value="0" disabled style="background:var(--fond);font-weight:800"></div>
+        <div class="paire-champ">
+          <div class="champ"><label for="fc-nouveaux">Nouveaux venus</label><input id="fc-nouveaux" type="number" inputmode="numeric" min="0" value="0"></div>
+          <div class="champ"><label for="fc-conversions">Conversions (7 jours)</label><input id="fc-conversions" type="number" inputmode="numeric" min="0" value="0"></div>
+        </div>
+        <div class="paire-champ">
+          <div class="champ"><label for="fc-familles">Familles visitées (7 jours)</label><input id="fc-familles" type="number" inputmode="numeric" min="0" value="0"></div>
+          <div class="champ"><label for="fc-temoignages">Témoignages</label><input id="fc-temoignages" type="number" inputmode="numeric" min="0" value="0"></div>
+        </div>
+        <div class="champ"><label for="fc-difficultes">Difficultés / Suggestions</label><textarea id="fc-difficultes" placeholder="Notes, sujets de prière, difficultés rencontrées…"></textarea></div>
+        <button class="btn btn-plein" id="btn-fiche" onclick="enregistrerFiche()">Enregistrer la fiche</button>
+        <p class="note" style="text-align:center;margin-top:12px">Cette fiche est transmise à l'administration de l'église.</p>
+      </div>
+    </section>
+
+    <!-- ======================= HISTORIQUE (BERGER) ======================= -->
+    <section class="ecran" id="e-mes-fiches">
+      <div class="barre"><span class="marque"><span class="logo-tuile" data-logo></span><span class="nom-eglise" data-nom>Mon Église</span></span></div>
+      <div class="entete"><div><h1>Historique</h1><p>Mes comptes rendus</p></div>
+        <button class="btn btn-plein btn-s" onclick="nouvelleFiche()">Nouvelle fiche</button></div>
+      <div class="pad limite">
+        <div class="ligne-fiche entete-tel" style="margin-bottom:10px"><h2 class="titre" style="margin:0">Historique</h2>
+          <button class="btn btn-plein btn-s" onclick="nouvelleFiche()">+ Nouvelle</button></div>
+        <div id="liste-mes-fiches"><p class="chargement">Chargement…</p></div>
+      </div>
+    </section>
+
+    <!-- ======================= MON DÉPARTEMENT (CHEF) ======================= -->
+    <section class="ecran" id="e-mon-departement">
+      <div class="barre"><span class="marque"><span class="logo-tuile" data-logo></span><span class="nom-eglise" data-nom>Mon Église</span></span></div>
+      <div class="entete"><div><h1>Mon département</h1><p id="md-sous">—</p></div></div>
+      <div class="pad limite">
+        <h2 class="titre entete-tel">Mon département</h2>
+        <div id="md-infos"><p class="chargement">Chargement…</p></div>
+        <h3 class="section">Ouvriers <small id="md-nb"></small></h3>
+        <div id="md-ouvriers"></div>
+      </div>
+    </section>
+
+    <!-- ======================= PROGRAMMES ======================= -->
+    <section class="ecran" id="e-programmes">
+      <div class="barre"><span class="marque"><span class="logo-tuile" data-logo></span><span class="nom-eglise" data-nom>Mon Église</span></span></div>
+      <div class="entete"><div><h1>Programmes</h1><p>Activités de l'église</p></div>
+        <button class="btn btn-plein btn-s" data-roles="super_admin" onclick="formulaireProgramme()">Nouveau programme</button></div>
+      <div class="pad limite">
+        <div class="ligne-fiche entete-tel" style="margin-bottom:10px"><h2 class="titre" style="margin:0">Programmes</h2>
+          <button class="btn btn-plein btn-s" data-roles="super_admin" onclick="formulaireProgramme()">+ Nouveau</button></div>
+        <div class="filtres" id="filtres-programmes">
+          <button class="on" onclick="filtrerProgrammes(this,'avenir')">À venir</button>
+          <button onclick="filtrerProgrammes(this,'tout')">Tous</button>
+          <button onclick="filtrerProgrammes(this,'passe')">Passés</button>
+        </div>
+        <div id="liste-programmes"><p class="chargement">Chargement…</p></div>
+      </div>
+    </section>
+
+    <!-- ======================= CALENDRIER ======================= -->
+    <section class="ecran" id="e-calendrier">
+      <div class="barre"><span class="marque"><span class="logo-tuile" data-logo></span><span class="nom-eglise" data-nom>Mon Église</span></span></div>
+      <div class="entete"><div><h1>Calendrier</h1><p>Les séances prévues, semaine après semaine</p></div></div>
+      <div class="pad limite">
+        <h2 class="titre entete-tel">Calendrier</h2>
+        <div id="liste-calendrier"><p class="chargement">Chargement…</p></div>
+      </div>
+    </section>
+
+    <!-- ======================= MESSAGES DU PASTEUR ======================= -->
+    <section class="ecran" id="e-messages">
+      <div class="barre"><span class="marque"><span class="logo-tuile" data-logo></span><span class="nom-eglise" data-nom>Mon Église</span></span></div>
+      <div class="entete"><div><h1>Messages</h1><p>Enseignements et annonces du pasteur</p></div>
+        <button class="btn btn-plein btn-s" data-roles="super_admin" onclick="formulaireMessage()">Publier un message</button></div>
+      <div class="pad limite">
+        <div class="ligne-fiche entete-tel" style="margin-bottom:10px"><h2 class="titre" style="margin:0">Messages</h2>
+          <button class="btn btn-plein btn-s" data-roles="super_admin" onclick="formulaireMessage()">+ Publier</button></div>
+        <div id="liste-messages"><p class="chargement">Chargement…</p></div>
+      </div>
+    </section>
+
+    <!-- ======================= DISCUSSIONS ======================= -->
+    <section class="ecran" id="e-discussions">
+      <div class="barre"><span class="marque"><span class="logo-tuile" data-logo></span><span class="nom-eglise" data-nom>Mon Église</span></span></div>
+      <div class="entete"><div><h1>Discussions</h1><p id="di-sous">Partagez avec vos frères et sœurs</p></div></div>
+      <div class="salons" id="salons"></div>
+      <div class="fil" id="fil"><p class="chargement" style="text-align:center">Chargement…</p></div>
+      <div class="ecrire" id="ecrire" hidden>
+        <textarea id="di-texte" rows="1" placeholder="Écrire un message…" maxlength="2000"></textarea>
+        <button id="di-envoyer" aria-label="Envoyer" data-act="envoyer-message">
+          <svg viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-2.6-6.2L4 12z"/></svg></button>
+      </div>
+    </section>
+
+    <!-- ======================= CULTES DU DIMANCHE ======================= -->
+    <section class="ecran" id="e-dimanche">
+      <div class="barre"><span class="marque"><span class="logo-tuile" data-logo></span><span class="nom-eglise" data-nom>Mon Église</span></span></div>
+      <div class="entete"><div><h1>Cultes du dimanche</h1><p>Présences, offrandes et dîmes</p></div>
+        <button class="btn btn-plein btn-s" onclick="formulaireDimanche()">Nouvelle fiche</button></div>
+      <div class="pad limite">
+        <div class="ligne-fiche entete-tel" style="margin-bottom:10px"><h2 class="titre" style="margin:0">Dimanches</h2>
+          <button class="btn btn-plein btn-s" onclick="formulaireDimanche()">+ Nouvelle</button></div>
+        <div class="somme" id="di-sommes"></div>
+        <div id="liste-dimanche"><p class="chargement">Chargement…</p></div>
+      </div>
+    </section>
+
+    <!-- ======================= FINANCES ======================= -->
+    <section class="ecran" id="e-finances">
+      <div class="barre"><span class="marque"><span class="logo-tuile" data-logo></span><span class="nom-eglise" data-nom>Mon Église</span></span></div>
+      <div class="entete"><div><h1>Finances</h1><p id="fn-sous">Entrées et sorties</p></div>
+        <button class="btn btn-plein btn-s" onclick="formulaireFinance()">Nouveau mouvement</button></div>
+      <div class="pad limite">
+        <div class="ligne-fiche entete-tel" style="margin-bottom:10px"><h2 class="titre" style="margin:0">Finances</h2>
+          <button class="btn btn-plein btn-s" onclick="formulaireFinance()">+ Mouvement</button></div>
+        <div class="filtres" id="filtres-finances">
+          <button class="on" onclick="filtrerFinances(this,'mois')">Ce mois</button>
+          <button onclick="filtrerFinances(this,'annee')">Cette année</button>
+          <button onclick="filtrerFinances(this,'tout')">Tout</button>
+        </div>
+        <div class="somme" id="fn-sommes"></div>
+        <div id="liste-finances"><p class="chargement">Chargement…</p></div>
+      </div>
+    </section>
+
+    <!-- ======================= APPARENCE ======================= -->
+    <section class="ecran" id="e-apparence">
+      <div class="barre"><span class="marque"><span class="logo-tuile" data-logo></span><span class="nom-eglise" data-nom>Mon Église</span></span></div>
+      <div class="entete"><div><h1>Apparence</h1><p>Nom, logo et couleurs de l'application</p></div></div>
+      <div class="pad limite" style="max-width:700px">
+        <h2 class="titre entete-tel">Apparence</h2>
+        <p class="intro entete-tel">Le logo devient l'icône de l'application et son logo ; les couleurs s'adaptent à celles du logo.</p>
+        <div class="alerte" id="err-apparence"></div>
+
+        <div class="par-bloc">
+          <h4>Nom de l'église</h4>
+          <p class="sous">Affiché dans l'application, dans l'onglet du navigateur et sous l'icône sur le téléphone.</p>
+          <div class="champ"><label for="ap-nom">Nom</label><input id="ap-nom" maxlength="60" placeholder="Église Évangélique de Brazzaville" oninput="apercuApparence()"></div>
+          <div class="champ" style="margin-bottom:0"><label for="ap-sous">Sous-titre (facultatif)</label><input id="ap-sous" maxlength="40" placeholder="Communauté" oninput="apercuApparence()"></div>
+        </div>
+
+        <div class="par-bloc">
+          <h4>Logo</h4>
+          <p class="sous">Image PNG, JPG, WEBP ou SVG. Un logo carré sur fond transparent donne le meilleur résultat.</p>
+          <div class="zone-logo">
+            <span class="logo-tuile" id="ap-logo-apercu"></span>
+            <div class="actions">
+              <label class="btn btn-doux btn-s" style="cursor:pointer">Choisir un logo<input id="ap-fichier" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden onchange="choisirLogo(this)"></label>
+              <button class="btn btn-rouge btn-s" id="ap-retirer" onclick="retirerLogo()" hidden>Retirer le logo</button>
+              <span class="miniature-texte" id="ap-logo-info">Aucun logo : l'icône utilise l'initiale du nom.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="par-bloc">
+          <h4>Couleurs</h4>
+          <p class="sous">Reprises automatiquement du logo. Vous pouvez les ajuster.</p>
+          <div class="rangee-couleurs">
+            <label class="couleur-champ"><input type="color" id="ap-c1" value="#123d6b" oninput="apercuApparence(true)"><div><span>Couleur principale</span><b id="ap-c1-txt">#123D6B</b></div></label>
+            <label class="couleur-champ"><input type="color" id="ap-c2" value="#2c6ca6" oninput="apercuApparence(true)"><div><span>Couleur secondaire</span><b id="ap-c2-txt">#2C6CA6</b></div></label>
+          </div>
+          <div class="duo" style="margin-top:12px">
+            <button class="btn btn-vide btn-s" onclick="couleursDuLogo()">Couleurs du logo</button>
+            <button class="btn btn-vide btn-s" onclick="couleursParDefaut()">Couleurs d'origine</button>
+          </div>
+        </div>
+
+        <div class="par-bloc">
+          <h4>Ambiance illustrée</h4>
+          <p class="sous">L'image d'arrière-plan qui accompagne chaque écran. « Au fil des écrans »
+            varie les illustrations selon la page ; sinon la même est gardée partout.</p>
+          <div class="choix-scenes" id="ap-scenes"></div>
+        </div>
+
+        <div class="par-bloc">
+          <h4>Aperçu</h4>
+          <p class="sous">Ce que verront les membres.</p>
+          <div class="apercu-app" id="ap-apercu-app">
+            <div class="barre-app"><span class="logo-tuile" id="ap-apercu-mini"></span><span id="ap-apercu-nom">Mon Église</span></div>
+            <div class="corps-app"><button class="btn btn-plein btn-s" tabindex="-1">Bouton principal</button><button class="btn btn-doux btn-s" tabindex="-1">Bouton doux</button><span class="etat actif">Actif</span></div>
+          </div>
+          <div class="apercu-icone">
+            <div class="telephone"><span class="logo-tuile" id="ap-apercu-icone"></span><span id="ap-apercu-etiquette">Mon Église</span></div>
+            <div class="onglet"><span class="logo-tuile" id="ap-apercu-fav"></span><span id="ap-apercu-titre">Mon Église</span></div>
+          </div>
+        </div>
+
+        <button class="btn btn-plein" id="btn-apparence" onclick="enregistrerApparence()">Enregistrer l'apparence</button>
+      </div>
+    </section>
+
+    <!-- ======================= MENU « PLUS » (téléphone) ======================= -->
+    <section class="ecran" id="e-plus">
+      <div class="barre"><span class="marque"><span class="logo-tuile" data-logo></span><span class="nom-eglise" data-nom>Mon Église</span></span></div>
+      <div class="pad limite" style="max-width:640px">
+        <h2 class="titre entete-tel">Plus</h2>
+        <div id="liste-plus"></div>
+      </div>
+    </section>
+
+    <!-- ======================= MON PROFIL ======================= -->
+    <section class="ecran" id="e-mon-profil">
+      <div class="dome" style="padding-bottom:50px">
+        <div class="dome-tete"><div class="marque"><span class="logo-tuile" data-logo></span><span class="nom-eglise" data-nom>Mon Église</span></div></div>
+        <div style="display:flex;align-items:center;gap:14px;margin-top:20px;position:relative;z-index:1">
+          <span class="pastille" data-init style="width:56px;height:56px;font-size:22px">?</span>
+          <div><b class="serif" style="font-family:var(--titre);font-size:20px;font-weight:700" id="p-nom">—</b>
+            <div style="font-size:13px;opacity:.85;font-weight:500" id="p-detail">—</div></div>
+        </div>
+      </div>
+      <div class="entete"><div><h1>Mon profil</h1><p id="p-detail-pc">—</p></div></div>
+      <div class="pad limite" style="margin-top:20px;max-width:640px">
+        <div class="carte" style="margin-bottom:14px">
+          <div class="fc-ligne"><span>Nom</span><b id="profil-nom">—</b></div>
+          <div class="fc-ligne"><span>Prénom</span><b id="profil-prenom">—</b></div>
+          <div class="fc-ligne"><span>Téléphone (identifiant)</span><b id="profil-tel">—</b></div>
+          <div class="fc-ligne" id="ligne-email" hidden><span>Email</span><b id="profil-email">—</b></div>
+          <div class="fc-ligne"><span>Rôle</span><b id="profil-role">—</b></div>
+          <div class="fc-ligne"><span>Cellule</span><b id="profil-cellule">—</b></div>
+          <div class="fc-ligne"><span>Département</span><b id="profil-departement">—</b></div>
+        </div>
+        <button class="btn btn-doux" onclick="formulaireProfil()">Modifier mes informations</button>
+        <button class="btn btn-vide" style="margin-top:10px" onclick="aller('guide')">Guide d'utilisation</button>
+        <button class="btn btn-vide" style="margin-top:10px" onclick="deconnecter()">Se déconnecter</button>
+      </div>
+    </section>
+
+    <!-- ======================= GUIDE ======================= -->
+    <section class="ecran" id="e-guide">
+      <div class="barre"><span class="marque"><span class="logo-tuile" data-logo></span><span class="nom-eglise" data-nom>Mon Église</span></span></div>
+      <div class="entete"><div><h1>Guide d'utilisation</h1><p>Comment utiliser l'application</p></div></div>
+      <div class="pad limite" style="max-width:760px">
+        <h2 class="titre entete-tel">Guide d'utilisation</h2>
+        <div id="guide-contenu"></div>
+      </div>
+    </section>
+
+  </main>
+  </div>
+
+  <!-- ======================= NAVIGATION (téléphone) ======================= -->
+  <nav class="nav" id="nav-bas">
+    <button data-cible="bienvenue" onclick="aller('bienvenue')">
+      <svg viewBox="0 0 24 24"><path d="M4 10.5L12 4l8 6.5V19a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19z"/></svg>Accueil</button>
+    <button data-cible="cellules" data-roles="super_admin" onclick="aller('cellules')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c1.3-3.6 4-5.3 7-5.3s5.7 1.7 7 5.3"/></svg>Cellules</button>
+    <button data-cible="membres" data-roles="super_admin" onclick="aller('membres')">
+      <svg viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.4"/><path d="M3 19c1-3 3.4-4.5 6-4.5S14 16 15 19"/><path d="M16 7.5a3.4 3.4 0 0 1 0 6.5"/></svg>Membres<span class="compteur" data-compteur hidden>0</span></button>
+    <button data-cible="ma-cellule" data-roles="berger" onclick="aller('ma-cellule')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c1.3-3.6 4-5.3 7-5.3s5.7 1.7 7 5.3"/></svg>Cellule</button>
+    <button data-cible="fiche-cellule" data-roles="berger" onclick="nouvelleFiche()">
+      <svg viewBox="0 0 24 24"><rect x="4.5" y="3.5" width="15" height="17" rx="4"/><path d="M8.5 9h7M8.5 13h7"/></svg>Fiche</button>
+    <button data-cible="mon-departement" data-roles="chef_departement" onclick="aller('mon-departement')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="4"/><path d="M3 10h18"/></svg>Département</button>
+    <button data-cible="finances" data-roles="comptable" onclick="aller('finances')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12.5" rx="3"/><circle cx="12" cy="12.2" r="2.6"/></svg>Finances</button>
+    <button data-cible="dimanche" data-roles="comptable" onclick="aller('dimanche')">
+      <svg viewBox="0 0 24 24"><path d="M4 5.5A2 2 0 0 1 6 4h5v16H6a2 2 0 0 1-2-1.5z"/><path d="M20 5.5A2 2 0 0 0 18 4h-5v16h5a2 2 0 0 0 2-1.5z"/></svg>Dimanche</button>
+    <button data-cible="programmes" data-roles="super_admin chef_departement membre" onclick="aller('programmes')">
+      <svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="4"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>Programmes</button>
+    <button data-cible="messages" data-roles="membre" onclick="aller('messages')">
+      <svg viewBox="0 0 24 24"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7A2.5 2.5 0 0 1 17.5 16H9l-5 4z"/></svg>Messages</button>
+    <button data-cible="discussions" data-roles="berger chef_departement comptable membre" onclick="aller('discussions')">
+      <svg viewBox="0 0 24 24"><path d="M7.5 17H6a2.5 2.5 0 0 1-2.5-2.5v-7A2.5 2.5 0 0 1 6 5h9a2.5 2.5 0 0 1 2.5 2.5V9"/><path d="M9 11.5A2.5 2.5 0 0 1 11.5 9H18a2.5 2.5 0 0 1 2.5 2.5v6A2.5 2.5 0 0 1 18 20h-2l-4 3v-3h-1a2.5 2.5 0 0 1-2-1"/></svg>Échanges</button>
+    <button data-cible="plus" onclick="aller('plus')">
+      <svg viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18.5" cy="12" r="1.6"/></svg>Plus</button>
+  </nav>
+</div>
+
+<div class="voile" id="voile" onclick="if(event.target===this)fermer()"><div class="feuille" id="feuille"></div></div>
+<div class="flash" id="flash" role="status" aria-live="polite"></div>
+
+<script src="vendor/supabase.js"></script>
+<script src="js/noyau.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/berger.js"></script>
+<script src="js/gestion.js"></script>
+<script src="js/chat.js"></script>
+<script src="js/membre.js"></script>
+<script src="js/apparence.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
